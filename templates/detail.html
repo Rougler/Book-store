@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BookWorm - {{ book['title'] }}</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Lora:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#0A4D68", "secondary": "#F4A261", "background-light": "#F8F9FA", "background-dark": "#101622", "text-light": "#343A40", "text-dark": "#E0E0E0", "text-muted-light": "#6c757d", "text-muted-dark": "#adb5bd", "border-light": "#dee2e6", "border-dark": "#343a40" }, fontFamily: { "display": ["Inter", "sans-serif"], "serif": ["Lora", "serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Lora', serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-6 lg:px-8 py-3 w-full bg-background-light dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl">import_contacts</span>
+<h2 class="text-xl font-bold font-serif">BookWorm</h2>
+</div>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="{{ url_for('home') }}">Home</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="{{ url_for('browse') }}">Bestsellers</a>
+<a class="text-sm font-medium text-primary font-bold" href="{{ url_for('browse') }}">Fiction</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Non-Fiction</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">About</a>
+</nav>
+<div class="flex items-center gap-3">
+<a href="{{ url_for('cart') }}" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-transparent text-text-light dark:text-text-dark hover:bg-gray-200 dark:hover:bg-gray-700 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 relative">
+<span class="material-symbols-outlined">shopping_cart</span>
+{% if cart_quantity %}<span class="absolute top-1 right-1 h-4 w-4 rounded-full bg-secondary text-white text-xs flex items-center justify-center">{{ cart_quantity }}</span>{% endif %}
+</a>
+</div>
+</header>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="fixed top-20 right-4 z-50 space-y-2">
+      {% for category, message in messages %}
+        <div class="px-4 py-3 rounded-lg shadow-lg {% if category == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+<main class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-7xl mx-auto">
+<div class="flex flex-wrap gap-2 mb-8">
+<a class="text-text-muted-light dark:text-text-muted-dark text-sm font-medium hover:text-primary" href="{{ url_for('home') }}">Home</a>
+<span class="text-text-muted-light dark:text-text-muted-dark text-sm font-medium">/</span>
+<a class="text-text-muted-light dark:text-text-muted-dark text-sm font-medium hover:text-primary" href="{{ url_for('browse') }}">Fiction</a>
+<span class="text-text-muted-light dark:text-text-muted-dark text-sm font-medium">/</span>
+<span class="text-text-light dark:text-text-dark text-sm font-medium">{{ book['title'] }}</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+<div class="lg:col-span-2">
+<div class="flex flex-col gap-4">
+<div class="w-full aspect-[3/4] bg-center bg-no-repeat bg-cover rounded-lg shadow-md" style="background-image: url('{{ book['image_url'] }}');"></div>
+</div>
+</div>
+<div class="lg:col-span-3">
+<div class="flex flex-col gap-4">
+<h1 class="text-4xl lg:text-5xl font-bold font-serif text-text-light dark:text-text-dark">{{ book['title'] }}</h1>
+<p class="text-lg text-text-muted-light dark:text-text-muted-dark">by <a class="text-primary hover:underline" href="#">{{ book['author'] }}</a></p>
+<div class="flex items-center gap-2">
+<div class="flex text-secondary">
+<span class="material-symbols-outlined">star</span>
+<span class="material-symbols-outlined">star</span>
+<span class="material-symbols-outlined">star</span>
+<span class="material-symbols-outlined">star</span>
+<span class="material-symbols-outlined">star_half</span>
+</div>
+<a class="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-primary" href="#reviews">4.5 (10,000+ ratings)</a>
+</div>
+<div class="my-4">
+<div class="flex border-b border-border-light dark:border-border-dark">
+<button class="py-2 px-4 text-sm font-medium border-b-2 border-primary text-primary">Hardcover</button>
+<button class="py-2 px-4 text-sm font-medium text-text-muted-light dark:text-text-muted-dark hover:text-primary">Paperback</button>
+<button class="py-2 px-4 text-sm font-medium text-text-muted-light dark:text-text-muted-dark hover:text-primary">E-book</button>
+</div>
+<p class="text-4xl font-bold text-text-light dark:text-text-dark mt-4">${{ '%.2f'|format(book['price']) }}</p>
+</div>
+<div class="flex flex-col sm:flex-row gap-4">
+<form method="post" action="{{ url_for('add_to_cart') }}" class="flex items-center border border-border-light dark:border-border-dark rounded-lg">
+<button name="quantity" value="-1" formaction="#" type="button" class="px-3 py-2 text-text-muted-light dark:text-text-muted-dark">-</button>
+<input class="w-12 text-center bg-transparent border-0 focus:ring-0" type="number" name="quantity" value="1" min="1" />
+<input type="hidden" name="book_id" value="{{ book['id'] }}" />
+<button type="submit" class="hidden"></button>
+</form>
+<button onclick="document.querySelector('form[action=\'{{ url_for('add_to_cart') }}\']').submit();" class="flex-1 flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined mr-2">add_shopping_cart</span>
+<span class="truncate">Add to Cart</span>
+</button>
+<a href="#" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-secondary/20 text-secondary gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-4 hover:bg-secondary/30 transition-colors">
+<span class="material-symbols-outlined">favorite_border</span>
+</a>
+</div>
+<div class="mt-8 border-t border-border-light dark:border-border-dark pt-8">
+<div class="flex border-b border-border-light dark:border-border-dark">
+<button class="pb-3 px-1 text-base font-medium border-b-2 border-primary text-primary">Description</button>
+<button class="pb-3 px-4 text-base font-medium text-text-muted-light dark:text-text-muted-dark hover:text-primary">Details</button>
+</div>
+<div class="prose prose-lg text-text-light dark:text-text-dark max-w-none mt-6 space-y-4">
+{% if book['description'] %}
+<p>{{ book['description'] }}</p>
+{% else %}
+<p>Engaging fantasy novel loved by readers worldwide.</p>
+<p>Immerse yourself in a rich world and unforgettable characters.</p>
+{% endif %}
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-16 pt-8 border-t border-border-light dark:border-border-dark" id="reviews">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+<h2 class="text-3xl font-bold font-serif text-text-light dark:text-text-dark">Customer Reviews</h2>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-secondary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+<span class="truncate">Write a Review</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>
+
+

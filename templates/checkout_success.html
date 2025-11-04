@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Placed</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+  <div class="max-w-md w-full bg-white rounded-xl shadow p-8 text-center">
+    <div class="mx-auto mb-4 size-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+      <span class="material-symbols-outlined">check_circle</span>
+    </div>
+    <h1 class="text-2xl font-bold mb-2">Thank you!</h1>
+    <p class="text-gray-600 mb-2">Your order has been placed successfully.</p>
+    {% if order_id %}<p class="text-sm text-gray-500 mb-6">Order #{{ order_id }}</p>{% endif %}
+    <a href="{{ url_for('home') }}" class="inline-flex items-center justify-center h-11 px-6 rounded-lg bg-blue-600 text-white font-semibold">Back to Home</a>
+  </div>
+</body>
+</html>
+
+

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bookstore - Your Next Great Read</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#1A237E", "background-light": "#F8F7F4", "background-dark": "#101622", "text-light": "#333333", "text-dark": "#F8F7F4", "secondary-light": "#B0B0B0", "secondary-dark": "#4A5568", "accent": "#D4AF37" }, fontFamily: { "display": ["Lora", "serif"], "body": ["Lato", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }
+  </script>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  </style>
+</head>
+<body>
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="sticky top-0 z-50 flex items-center justify-center border-b border-solid border-secondary-light/30 bg-background-light/80 px-4 py-3 backdrop-blur-sm dark:border-secondary-dark/30 dark:bg-background-dark/80 md:px-10">
+<div class="flex w-full max-w-7xl items-center justify-between whitespace-nowrap">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary dark:text-white">
+<span class="material-symbols-outlined text-3xl">import_contacts</span>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em] text-text-light dark:text-text-dark">Bookstore</h2>
+</div>
+<nav class="hidden items-center gap-8 lg:flex">
+<a class="text-sm font-bold text-text-light hover:text-primary dark:text-text-dark dark:hover:text-accent" href="{{ url_for('browse') }}">Categories</a>
+<a class="text-sm font-bold text-text-light hover:text-primary dark:text-text-dark dark:hover:text-accent" href="{{ url_for('browse') }}">Bestsellers</a>
+<a class="text-sm font-bold text-text-light hover:text-primary dark:text-text-dark dark:hover:text-accent" href="{{ url_for('browse') }}">New Arrivals</a>
+<a class="text-sm font-bold text-text-light hover:text-primary dark:text-text-dark dark:hover:text-accent" href="{{ url_for('browse') }}">Deals</a>
+</nav>
+</div>
+<div class="flex flex-1 items-center justify-end gap-2 md:gap-4">
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-secondary-light/20 dark:bg-secondary-dark/40">
+<div class="text-secondary-light dark:text-secondary-dark flex items-center justify-center pl-3">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border-none bg-transparent h-full placeholder:text-secondary-light dark:placeholder:text-secondary-dark/80 pl-2 text-base font-normal leading-normal focus:outline-0 focus:ring-0 text-text-light dark:text-text-dark" placeholder="Search books..." value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+{% if session.get('user_id') %}
+<a href="{{ url_for('logout') }}" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-transparent text-text-light dark:text-text-dark hover:bg-secondary-light/20 dark:hover:bg-secondary-dark/40 gap-2 text-sm font-bold leading-normal min-w-0 px-2.5">
+<span class="material-symbols-outlined">logout</span>
+<span class="hidden sm:inline">Logout</span>
+</a>
+{% else %}
+<a href="{{ url_for('login') }}" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-transparent text-text-light dark:text-text-dark hover:bg-secondary-light/20 dark:hover:bg-secondary-dark/40 gap-2 text-sm font-bold leading-normal min-w-0 px-2.5">
+<span class="material-symbols-outlined">person</span>
+</a>
+{% endif %}
+<a href="{{ url_for('cart') }}" class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-transparent text-text-light dark:text-text-dark hover:bg-secondary-light/20 dark:hover:bg-secondary-dark/40 gap-2 text-sm font-bold leading-normal min-w-0 px-2.5">
+<span class="material-symbols-outlined">shopping_cart</span>
+{% if cart_quantity %}<span class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{{ cart_quantity }}</span>{% endif %}
+</a>
+</div>
+</div>
+</div>
+</header>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="fixed top-20 right-4 z-50 space-y-2">
+      {% for category, message in messages %}
+        <div class="px-4 py-3 rounded-lg shadow-lg {% if category == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+<main class="flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full max-w-7xl flex-1 px-4 md:px-10">
+<!-- Hero Section -->
+<section class="w-full @container">
+<div class="@[480px]:p-4">
+<div class="flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 @[480px]:rounded-xl items-start justify-center text-center px-4 py-10 @[480px]:px-10" data-alt="A cozy, warm-lit library with tall bookshelves" style='background-image: linear-gradient(rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDwAhz78oQ2duTtnXXU-g9WTeUYDNLxQsfpJvcJd9P4m7zDE6e3TM22qLKvX0xrfX_RHp2O0uo_rQkwxpT4Par1zHcZf-3H0_PWqAWH8gR_sfXhSBFR_rhhb7CkR7rqF8UamG5n_Af8Qt7uwhrbC1IXtN4n5Pnw_JkH9Vdi8Q6ACGLb8tBL3bXukd0H-GE52ANQiAAPakDDALWgu8S9xUjrhFtJISP8JvblcIIpCjqJGkd-AHFUlvHLcnxU9S3x-eowwpq7hj8MWlUi");'>
+<div class="flex flex-col gap-4 text-center items-center max-w-2xl mx-auto">
+<h1 class="text-white text-4xl font-bold leading-tight tracking-[-0.033em] @[480px]:text-6xl @[480px]:font-bold @[480px]:leading-tight">
+                    Discover Your Next Great Read
+                  </h1>
+<p class="text-white/90 text-base font-normal leading-normal @[480px]:text-lg @[480px]:font-normal @[480px]:leading-normal">
+                    Explore thousands of titles from beloved authors and new voices. Your next adventure awaits between the pages.
+                  </p>
+</div>
+<a href="{{ url_for('browse') }}" class="flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-6 bg-primary text-white text-sm font-bold leading-normal tracking-wide @[480px]:text-base hover:bg-primary/90 transition-colors">
+<span class="truncate">Explore New Arrivals</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Featured Books -->
+<section class="mt-12">
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Featured Books</h2>
+<div class="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+<div class="flex items-stretch p-4 gap-6">
+{% for b in books %}
+<div class="flex h-full w-60 flex-col gap-3 rounded-lg bg-background-light dark:bg-background-dark/50 shadow-md transition-shadow hover:shadow-xl">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-t-lg flex flex-col" style="background-image: url('{{ b.image_url }}');"></div>
+<div class="flex flex-col flex-1 justify-between p-4 pt-0 gap-4">
+<div>
+<p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">{{ b['title'] }}</p>
+<p class="text-secondary-light dark:text-secondary-dark text-sm font-normal leading-normal">{{ b['author'] }} - ${{ '%.2f'|format(b['price']) }}</p>
+</div>
+<form method="post" action="{{ url_for('add_to_cart') }}">
+<input type="hidden" name="book_id" value="{{ b['id'] }}" />
+<button class="flex min-w-[84px] w-full max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-secondary-light/30 dark:bg-secondary-dark/50 text-text-light dark:text-text-dark text-sm font-bold leading-normal hover:bg-secondary-light/50 dark:hover:bg-secondary-dark/70 transition-colors">
+<span class="truncate">Add to Cart</span>
+</button>
+</form>
+</div>
+</div>
+{% endfor %}
+</div>
+</div>
+</section>
+<!-- Top Sellers -->
+<section class="mt-12">
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Top Sellers</h2>
+<div class="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+<div class="flex items-stretch p-4 gap-6">
+{% for b in books %}
+<div class="flex h-full w-60 flex-col gap-3 rounded-lg bg-background-light dark:bg-background-dark/50 shadow-md transition-shadow hover:shadow-xl">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-t-lg flex flex-col" style="background-image: url('{{ b.image_url }}');"></div>
+<div class="flex flex-col flex-1 justify-between p-4 pt-0 gap-4">
+<div>
+<p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">{{ b['title'] }}</p>
+<p class="text-secondary-light dark:text-secondary-dark text-sm font-normal leading-normal">{{ b['author'] }} - ${{ '%.2f'|format(b['price']) }}</p>
+</div>
+<a href="{{ url_for('book_detail', book_id=b['id']) }}" class="flex min-w-[84px] w-full max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-secondary-light/30 dark:bg-secondary-dark/50 text-text-light dark:text-text-dark text-sm font-bold leading-normal hover:bg-secondary-light/50 dark:hover:bg-secondary-dark/70 transition-colors">
+<span class="truncate">View</span>
+</a>
+</div>
+</div>
+{% endfor %}
+</div>
+</div>
+</section>
+<!-- Browse by Genre -->
+<section class="mt-12 px-4 py-5">
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-[-0.015em] mb-6">Browse by Genre</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+<a class="group flex flex-col items-center gap-2 rounded-lg p-4 bg-secondary-light/20 dark:bg-secondary-dark/30 hover:bg-secondary-light/40 dark:hover:bg-secondary-dark/50 transition-colors" href="{{ url_for('browse') }}">
+<span class="material-symbols-outlined text-4xl text-primary dark:text-accent">auto_stories</span>
+<p class="font-bold text-sm">Fiction</p>
+</a>
+<a class="group flex flex-col items-center gap-2 rounded-lg p-4 bg-secondary-light/20 dark:bg-secondary-dark/30 hover:bg-secondary-light/40 dark:hover:bg-secondary-dark/50 transition-colors" href="{{ url_for('browse') }}">
+<span class="material-symbols-outlined text-4xl text-primary dark:text-accent">rocket_launch</span>
+<p class="font-bold text-sm">Sci-Fi</p>
+</a>
+<a class="group flex flex-col items-center gap-2 rounded-lg p-4 bg-secondary-light/20 dark:bg-secondary-dark/30 hover:bg-secondary-light/40 dark:hover:bg-secondary-dark/50 transition-colors" href="{{ url_for('browse') }}">
+<span class="material-symbols-outlined text-4xl text-primary dark:text-accent">menu_book</span>
+<p class="font-bold text-sm">Biography</p>
+</a>
+<a class="group flex flex-col items-center gap-2 rounded-lg p-4 bg-secondary-light/20 dark:bg-secondary-dark/30 hover:bg-secondary-light/40 dark:hover:bg-secondary-dark/50 transition-colors" href="{{ url_for('browse') }}">
+<span class="material-symbols-outlined text-4xl text-primary dark:text-accent">mystery</span>
+<p class="font-bold text-sm">Mystery</p>
+</a>
+<a class="group flex flex-col items-center gap-2 rounded-lg p-4 bg-secondary-light/20 dark:bg-secondary-dark/30 hover:bg-secondary-light/40 dark:hover:bg-secondary-dark/50 transition-colors" href="{{ url_for('browse') }}">
+<span class="material-symbols-outlined text-4xl text-primary dark:text-accent">favorite</span>
+<p class="font-bold text-sm">Romance</p>
+</a>
+<a class="group flex flex-col items-center gap-2 rounded-lg p-4 bg-secondary-light/20 dark:bg-secondary-dark/30 hover:bg-secondary-light/40 dark:hover:bg-secondary-dark/50 transition-colors" href="{{ url_for('browse') }}">
+<span class="material-symbols-outlined text-4xl text-primary dark:text-accent">history_edu</span>
+<p class="font-bold text-sm">History</p>
+</a>
+</div>
+</section>
+</div>
+</main>
+<footer class="bg-background-light dark:bg-background-dark/50 border-t border-secondary-light/30 dark:border-secondary-dark/30 mt-16">
+<div class="w-full max-w-7xl mx-auto py-12 px-4 md:px-10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="md:col-span-1">
+<div class="flex items-center gap-3 text-primary dark:text-white">
+<span class="material-symbols-outlined text-3xl">import_contacts</span>
+<h2 class="text-xl font-bold leading-tight text-text-light dark:text-text-dark">Bookstore</h2>
+</div>
+<p class="mt-4 text-sm text-secondary-light dark:text-secondary-dark">Your adventure between the pages.</p>
+</div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark">Explore</h3>
+<ul class="mt-4 space-y-2 text-sm">
+<li><a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="{{ url_for('browse') }}">Categories</a></li>
+<li><a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="{{ url_for('browse') }}">Bestsellers</a></li>
+<li><a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="{{ url_for('browse') }}">New Arrivals</a></li>
+</ul>
+</div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark">Information</h3>
+<ul class="mt-4 space-y-2 text-sm">
+<li><a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="#">About Us</a></li>
+<li><a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="#">Contact</a></li>
+<li><a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="#">FAQ</a></li>
+</ul>
+</div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark">Follow Us</h3>
+<div class="mt-4 flex space-x-4">
+<a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="#"><svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" fill-rule="evenodd"></path></svg></a>
+<a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="#"><svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.71v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg></a>
+<a class="text-secondary-light dark:text-secondary-dark hover:text-primary dark:hover:text-accent" href="#"><svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.013-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a3.44 3.44 0 01.82-1.258 3.44 3.44 0 001.258-.82c.413-.186.977-.337 2.01-.385C9.802 3.453 10.156 3.442 12.315 3.442h.004zm-.717 1.442c-2.305 0-2.583.011-3.493.05-1.033.048-1.597.2-2.01.385a3.44 3.44 0 00-1.258.82A3.44 3.44 0 003.8 6.202c-.186.413-.337.977-.385 2.01-.04 1.056-.05 1.348-.05 3.788s.01 2.732.05 3.788c.048 1.033.2 1.597.385 2.01a3.44 3.44 0 00.82 1.258 3.44 3.44 0 001.258.82c.413.186.977.337 2.01.385 1.056.04 1.348.05 3.788.05s2.732-.01 3.788-.05c1.033-.048 1.597-.2 2.01-.385a3.44 3.44 0 001.258-.82 3.44 3.44 0 00.82-1.258c.186-.413.337-.977.385-2.01.04-1.056.05-1.348.05-3.788s-.01-2.732-.05-3.788c-.048-1.033-.2-1.597-.385-2.01a3.44 3.44 0 00-.82-1.258 3.44 3.44 0 00-1.258-.82c-.413-.186-.977-.337-2.01-.385C15.46 3.453 15.178 3.442 12.898 3.442h-1.3zM12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5zm0 1.5a2.25 2.25 0 110 4.5 2.25 2.25 0 010-4.5zm5.849-3.326a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z" fill-rule="evenodd"></path></svg></a>
+</div>
+</div>
+</div>
+<div class="mt-8 border-t border-secondary-light/30 dark:border-secondary-dark/30 pt-8 text-center text-sm text-secondary-light dark:text-secondary-dark">
+<p>© 2024 Bookstore. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>
+
+
