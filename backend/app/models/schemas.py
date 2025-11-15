@@ -39,6 +39,9 @@ class UserPublic(BaseModel):
     wallet_balance: float
     team_size: int
     direct_referrals: int
+    total_sales_count: int = 0
+    team_sales_count: int = 0
+    insurance_amount: float = 0
     bio: Optional[str] = None
     profile_image_url: Optional[str] = None
     achievements: Optional[str] = None
@@ -139,6 +142,7 @@ class OrderSummary(BaseModel):
     status: str
     created_at: datetime
     paid_at: Optional[datetime] = None
+    sales_units: int = 1
 
 
 class OrderDetail(OrderSummary):
@@ -335,6 +339,7 @@ class CompensationSummary(BaseModel):
     direct_referral_bonus: float
     team_commission: float
     rank_bonuses: float
+    pending_weekly_commissions: float = 0
 
 
 # Events and Community

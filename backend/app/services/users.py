@@ -11,6 +11,17 @@ from ..models.schemas import AuthCredentials, UserCreate, UserProfile, UserPubli
 
 
 def _row_to_user(row) -> UserPublic:
+    # Helper to safely get column value (for new columns that might not exist in old databases)
+    # sqlite3.Row supports 'in' operator and dictionary-style access
+    def safe_get(key: str, default=0):
+        try:
+            # Check if key exists in row
+            if key in row.keys():
+                return row[key]
+            return default
+        except (KeyError, TypeError, AttributeError):
+            return default
+    
     return UserPublic(
         id=row["id"],
         full_name=row["full_name"],
@@ -22,6 +33,9 @@ def _row_to_user(row) -> UserPublic:
         wallet_balance=row["wallet_balance"],
         team_size=row["team_size"],
         direct_referrals=row["direct_referrals"],
+        total_sales_count=safe_get("total_sales_count", 0),
+        team_sales_count=safe_get("team_sales_count", 0),
+        insurance_amount=safe_get("insurance_amount", 0),
         bio=row["bio"],
         profile_image_url=row["profile_image_url"],
         achievements=row["achievements"],

@@ -20,6 +20,9 @@ export type UserProfile = {
   wallet_balance: number;
   team_size: number;
   direct_referrals: number;
+  total_sales_count?: number; // Direct sales in units
+  team_sales_count?: number; // Team sales in units
+  insurance_amount?: number; // Current insurance benefit
   bio?: string | null;
   profile_image_url?: string | null;
   achievements?: string | null;
@@ -39,6 +42,9 @@ export type UserPublic = {
   wallet_balance: number;
   team_size: number;
   direct_referrals: number;
+  total_sales_count?: number; // Direct sales in units
+  team_sales_count?: number; // Team sales in units
+  insurance_amount?: number; // Current insurance benefit
   bio?: string | null;
   profile_image_url?: string | null;
   achievements?: string | null;
@@ -121,6 +127,7 @@ export type OrderSummary = {
   status: string;
   created_at: string;
   paid_at?: string | null;
+  sales_units?: number;
 };
 
 export type OrderDetail = OrderSummary & {
@@ -265,6 +272,7 @@ export type CompensationSummary = {
   direct_referral_bonus: number;
   team_commission: number;
   rank_bonuses: number;
+  pending_weekly_commissions?: number; // Pending team commissions in queue
 };
 
 // Events and Community
