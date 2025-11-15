@@ -3,6 +3,7 @@
 from sqlite3 import IntegrityError
 
 from ..core.security import hash_password
+from .migrations import run_all_migrations
 from .session import db_session
 
 
@@ -302,6 +303,11 @@ def initialize_database() -> None:
         # Run migration to add missing columns to existing tables
         _migrate_users_table(cursor)
 
+    # Run migrations to add new fields
+    run_all_migrations()
+
+    with db_session() as conn:
+        cursor = conn.cursor()
         # Create default admin if not exists
         admin_exists = cursor.execute(
             "SELECT id FROM admins WHERE username = ?", ("admin",)

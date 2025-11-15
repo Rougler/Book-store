@@ -114,6 +114,10 @@ def get_compensation_summary(user_id: int) -> CompensationSummary:
             (user_id,)
         ).fetchone()
 
+    # Get pending weekly commissions
+    from .weekly_commissions import get_user_pending_commission
+    pending_weekly = get_user_pending_commission(user_id)
+    
     return CompensationSummary(
         total_earnings=user_row["total_earnings"],
         wallet_balance=user_row["wallet_balance"],
@@ -121,6 +125,7 @@ def get_compensation_summary(user_id: int) -> CompensationSummary:
         direct_referral_bonus=earnings_by_type.get("direct_referral", 0),
         team_commission=earnings_by_type.get("team_commission", 0),
         rank_bonuses=earnings_by_type.get("rank_bonus", 0),
+        pending_weekly_commissions=pending_weekly,
     )
 
 
@@ -137,53 +142,110 @@ def process_direct_referral_bonus(referrer_id: int, new_user_id: int, package_am
     )
 
 
-def process_team_commissions(user_id: int, level: int, package_amount: float) -> None:
-    """Process team commissions up to 10 levels (0.1% to 2%)."""
-    # This is a simplified implementation
-    # In a real MLM system, this would traverse the entire network tree
-    commission_rate = min(0.002, max(0.001, level * 0.0001))  # 0.1% to 2%
-    commission_amount = package_amount * commission_rate
+def queue_team_commission_for_sale(buyer_id: int, sales_units: int, order_id: int, package_amount: float) -> None:
+    """Queue team commissions for weekly calculation.
+    
+    This function traverses the upline network and queues commission calculations
+    based on tiered rates (2%, 1%, 0.1%) for weekly processing.
+    """
+    from datetime import datetime, timedelta
+    from .network import get_upline_chain, get_total_team_sales, calculate_tiered_commission_rate
+    
+    # Get all upline members
+    upline_chain = get_upline_chain(buyer_id, max_levels=10000)
+    
+    # Calculate period for weekly commission
+    now = datetime.now()
+    period_start = now - timedelta(days=7)
+    period_end = now
+    
+    # Standard package price (₹5,000 per unit as per requirements)
+    PACKAGE_PRICE_PER_UNIT = 5000.0
+    
+    with db_session() as conn:
+        for level, referrer_id in enumerate(upline_chain, start=1):
+            # Get total team sales for this referrer
+            total_team_sales = get_total_team_sales(referrer_id)
+            
+            # Calculate tiered commission rate
+            commission_rate = calculate_tiered_commission_rate(total_team_sales)
+            
+            # Calculate commission amount
+            # Commission is based on sales units * package price * rate
+            commission_amount = sales_units * PACKAGE_PRICE_PER_UNIT * commission_rate
+            
+            if commission_amount > 0:
+                # Queue commission for weekly processing
+                conn.execute(
+                    """
+                    INSERT INTO team_commission_queue 
+                    (user_id, sales_units, commission_amount, level, order_id, 
+                     calculation_period_start, calculation_period_end, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
+                    """,
+                    (
+                        referrer_id,
+                        sales_units,
+                        commission_amount,
+                        level,
+                        order_id,
+                        period_start.isoformat(),
+                        period_end.isoformat(),
+                    )
+                )
 
-    if commission_amount > 0:
-        create_transaction(
-            user_id=user_id,
-            transaction_type="team_commission",
-            amount=commission_amount,
-            description=f"Level {level} team commission",
-            reference_id=None,  # Would reference the original purchase
-        )
+
+def process_team_commissions(user_id: int, level: int, package_amount: float) -> None:
+    """Legacy function - kept for backward compatibility.
+    
+    This is now replaced by queue_team_commission_for_sale() which properly
+    implements the tiered commission structure.
+    """
+    # This function is deprecated but kept for compatibility
+    # New implementation uses queue_team_commission_for_sale()
+    pass
 
 
 def check_and_award_rank_bonuses(user_id: int) -> None:
-    """Check user's eligibility for rank bonuses and award if qualified."""
+    """Check user's eligibility for rank bonuses and award if qualified.
+    
+    Ranks are based on total sales (direct + team) in units, not revenue.
+    """
+    from .network import get_total_sales
+    
     user = get_user_by_id(user_id)
     if not user:
         return
 
+    # Get total sales in units (direct + team)
+    total_sales_units = get_total_sales(user_id)
+
     rank_requirements = {
-        "achiever": {"sales_volume": 100},
-        "leader": {"sales_volume": 1000},
-        "pro_leader": {"sales_volume": 10000},
-        "champion": {"sales_volume": 100000},
-        "legend": {"sales_volume": 1000000},
+        "achiever": {"sales_units": 100, "bonus": 10000, "insurance": 0},
+        "leader": {"sales_units": 1000, "bonus": 100000, "insurance": 100000},
+        "pro_leader": {"sales_units": 10000, "bonus": 1000000, "insurance": 1000000},
+        "champion": {"sales_units": 100000, "bonus": 10000000, "insurance": 10000000},
+        "legend": {"sales_units": 1000000, "bonus": 100000000, "insurance": 100000000},
     }
 
-    # This is a simplified check - in reality, you'd calculate total team sales volume
-    # For now, we'll use direct referrals as a proxy
-    total_sales = user.direct_referrals * 50000  # Assuming average package price
+    # Check each rank in order
+    rank_order = ["achiever", "leader", "pro_leader", "champion", "legend"]
+    current_rank_index = rank_order.index(user.rank) if user.rank in rank_order else -1
 
-    for rank, requirements in rank_requirements.items():
-        if total_sales >= requirements["sales_volume"] and user.rank != rank:
+    for rank in rank_order:
+        requirements = rank_requirements[rank]
+        
+        # Only check ranks that are higher than current rank
+        rank_index = rank_order.index(rank)
+        if rank_index <= current_rank_index:
+            continue
+        
+        # Check if user qualifies for this rank
+        if total_sales_units >= requirements["sales_units"]:
             # Award rank bonus
-            bonuses = {
-                "achiever": 10000,
-                "leader": 100000,
-                "pro_leader": 1000000,
-                "champion": 10000000,
-                "legend": 100000000,
-            }
-
-            bonus_amount = bonuses.get(rank, 0)
+            bonus_amount = requirements["bonus"]
+            insurance_amount = requirements["insurance"]
+            
             if bonus_amount > 0:
                 create_transaction(
                     user_id=user_id,
@@ -196,16 +258,59 @@ def check_and_award_rank_bonuses(user_id: int) -> None:
                 # Update user rank
                 from .users import update_user_rank
                 update_user_rank(user_id, rank)
+                
+                # Assign insurance benefit if applicable
+                if insurance_amount > 0:
+                    assign_insurance_benefit(user_id, rank, insurance_amount)
+                
+                # Only award one rank at a time
+                break
+
+
+def assign_insurance_benefit(user_id: int, rank: str, insurance_amount: float) -> None:
+    """Assign insurance benefit to user upon rank upgrade."""
+    with db_session() as conn:
+        # Update user's insurance amount
+        conn.execute(
+            """
+            UPDATE users
+            SET insurance_amount = ?
+            WHERE id = ?
+            """,
+            (insurance_amount, user_id)
+        )
+        
+        # Record insurance benefit assignment
+        conn.execute(
+            """
+            INSERT INTO insurance_benefits (user_id, rank, insurance_amount, status)
+            VALUES (?, ?, ?, 'active')
+            """,
+            (user_id, rank, insurance_amount)
+        )
 
 
 def process_payout_request(user_id: int, amount: float) -> CompensationTransaction:
-    """Process a payout request."""
+    """Process a payout request with minimum withdrawal validation.
+    
+    Minimum withdrawal:
+    - Weekly payout: ₹5,000
+    - Wallet withdrawal: ₹1,000
+    """
     user = get_user_by_id(user_id)
     if not user:
         raise ValueError("User not found")
 
     if amount > user.wallet_balance:
         raise ValueError("Insufficient wallet balance")
+    
+    # Minimum withdrawal validation
+    MIN_WALLET_WITHDRAWAL = 1000.0
+    MIN_WEEKLY_PAYOUT = 5000.0
+    
+    # For now, we'll use wallet minimum (can be enhanced to distinguish weekly vs wallet)
+    if amount < MIN_WALLET_WITHDRAWAL:
+        raise ValueError(f"Minimum withdrawal amount is ₹{MIN_WALLET_WITHDRAWAL}")
 
     # Create payout transaction
     transaction = create_transaction(
