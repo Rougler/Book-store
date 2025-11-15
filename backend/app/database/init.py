@@ -249,11 +249,58 @@ CREATE_STATEMENTS = (
 )
 
 
+def _migrate_users_table(cursor) -> None:
+    """Add missing columns to users table if they don't exist."""
+    # Get current table schema
+    cursor.execute("PRAGMA table_info(users)")
+    columns = {row[1] for row in cursor.fetchall()}  # row[1] is the column name
+    
+    # List of columns that should exist
+    # Note: UNIQUE constraints can't be added via ALTER TABLE in SQLite
+    required_columns = {
+        'referral_code': 'TEXT',
+        'referrer_id': 'INTEGER',
+        'kyc_verified': 'BOOLEAN DEFAULT FALSE',
+        'otp_verified': 'BOOLEAN DEFAULT FALSE',
+        'otp_code': 'TEXT',
+        'otp_expires_at': 'TIMESTAMP',
+        'role': "TEXT DEFAULT 'partner'",
+        'rank': "TEXT DEFAULT 'starter'",
+        'total_earnings': 'REAL DEFAULT 0',
+        'wallet_balance': 'REAL DEFAULT 0',
+        'team_size': 'INTEGER DEFAULT 0',
+        'direct_referrals': 'INTEGER DEFAULT 0',
+        'bio': 'TEXT',
+        'profile_image_url': 'TEXT',
+        'achievements': 'TEXT',
+        'created_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+        'updated_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+    }
+    
+    # Add missing columns
+    for column_name, column_def in required_columns.items():
+        if column_name not in columns:
+            try:
+                cursor.execute(f"ALTER TABLE users ADD COLUMN {column_name} {column_def}")
+            except Exception:
+                # Column might already exist or there's a constraint issue
+                pass
+    
+    # Create unique index on referral_code (safe to run even if column already exists)
+    try:
+        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)")
+    except Exception:
+        pass
+
+
 def initialize_database() -> None:
     with db_session() as conn:
         cursor = conn.cursor()
         for statement in CREATE_STATEMENTS:
             cursor.execute(statement)
+        
+        # Run migration to add missing columns to existing tables
+        _migrate_users_table(cursor)
 
         # Create default admin if not exists
         admin_exists = cursor.execute(
