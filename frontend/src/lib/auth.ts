@@ -17,7 +17,7 @@ export const getCurrentUser = async (): Promise<UserProfile | null> => {
     });
   } catch (error) {
     // Silently handle authentication errors (expected when user is not logged in)
-    if (error instanceof Error && error.message === "Authentication required") {
+    if (error instanceof Error && (error.message === "Authentication required" || error.message === "Authentication expired")) {
       return null;
     }
     // Only log unexpected errors

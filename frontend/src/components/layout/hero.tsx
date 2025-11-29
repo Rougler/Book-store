@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-export const Hero = () => {
+import { HeroSlide, HeroStep } from "@/lib/types";
+
+interface HeroProps {
+  slides?: HeroSlide[];
+  steps?: HeroStep[];
+}
+
+export const Hero = ({ slides, steps: propSteps }: HeroProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -11,52 +18,7 @@ export const Hero = () => {
   const [progress, setProgress] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
 
-  useEffect(() => {
-    setIsLoaded(true);
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // Preload background images for smoother transitions
-  useEffect(() => {
-    carouselSlides.forEach((slide) => {
-      const img = new Image();
-      img.src = slide.backgroundImage;
-    });
-  }, []);
-
-  // Auto-rotate carousel with progress tracking
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
-        setProgress(0); // Reset progress on slide change
-        setIsTransitioning(false);
-        // Trigger animations for new slide
-        setTimeout(() => setAnimationKey(prev => prev + 1), 100);
-      }, 300);
-    }, 6000); // Change slide every 6 seconds
-
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => Math.min(prev + (100 / 600), 100)); // Increment progress every 100ms
-    }, 100);
-
-    return () => {
-      clearInterval(interval);
-      clearInterval(progressInterval);
-    };
-  }, []);
-
-  // Reset progress when slide changes manually
-  useEffect(() => {
-    setProgress(0);
-  }, [currentSlide]);
-
-  const carouselSlides = [
+  const defaultSlides = [
     {
       title: "Unlock Your Potential",
       subtitle: "Through the Power of Knowledge",
@@ -111,39 +73,7 @@ export const Hero = () => {
     },
   ];
 
-  const nextSlide = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
-      setIsTransitioning(false);
-      // Trigger animations for new slide
-      setTimeout(() => setAnimationKey(prev => prev + 1), 100);
-    }, 300);
-  };
-
-  const prevSlide = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
-      setIsTransitioning(false);
-      // Trigger animations for new slide
-      setTimeout(() => setAnimationKey(prev => prev + 1), 100);
-    }, 300);
-  };
-
-  const goToSlide = (index: number) => {
-    if (index !== currentSlide) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentSlide(index);
-        setIsTransitioning(false);
-        // Trigger animations for new slide
-        setTimeout(() => setAnimationKey(prev => prev + 1), 100);
-      }, 300);
-    }
-  };
-
-  const steps = [
+  const defaultSteps = [
     {
       number: 1,
       title: "Learn",
@@ -177,6 +107,86 @@ export const Hero = () => {
       gradient: "from-pink-500/20 to-rose-600/20"
     },
   ];
+
+  const carouselSlides = slides || defaultSlides;
+  const steps = propSteps || defaultSteps;
+
+  useEffect(() => {
+    setIsLoaded(true);
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Preload background images for smoother transitions
+  useEffect(() => {
+    carouselSlides.forEach((slide) => {
+      const img = new Image();
+      img.src = slide.backgroundImage;
+    });
+  }, [carouselSlides]);
+
+  // Auto-rotate carousel with progress tracking
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+        setProgress(0); // Reset progress on slide change
+        setIsTransitioning(false);
+        // Trigger animations for new slide
+        setTimeout(() => setAnimationKey(prev => prev + 1), 100);
+      }, 300);
+    }, 6000); // Change slide every 6 seconds
+
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => Math.min(prev + (100 / 600), 100)); // Increment progress every 100ms
+    }, 100);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(progressInterval);
+    };
+  }, [carouselSlides.length]);
+
+  // Reset progress when slide changes manually
+  useEffect(() => {
+    setProgress(0);
+  }, [currentSlide]);
+
+  const nextSlide = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+      setIsTransitioning(false);
+      // Trigger animations for new slide
+      setTimeout(() => setAnimationKey(prev => prev + 1), 100);
+    }, 300);
+  };
+
+  const prevSlide = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
+      setIsTransitioning(false);
+      // Trigger animations for new slide
+      setTimeout(() => setAnimationKey(prev => prev + 1), 100);
+    }, 300);
+  };
+
+  const goToSlide = (index: number) => {
+    if (index !== currentSlide) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentSlide(index);
+        setIsTransitioning(false);
+        // Trigger animations for new slide
+        setTimeout(() => setAnimationKey(prev => prev + 1), 100);
+      }, 300);
+    }
+  };
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -303,11 +313,10 @@ export const Hero = () => {
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`h-3 w-3 rounded-full transition-all duration-300 ${
-                    index === currentSlide
-                      ? `bg-gradient-to-r ${carouselSlides[currentSlide].gradient} scale-125 animate-pulse`
-                      : 'bg-white/30 hover:bg-white/50'
-                  }`}
+                  className={`h-3 w-3 rounded-full transition-all duration-300 ${index === currentSlide
+                    ? `bg-gradient-to-r ${carouselSlides[currentSlide].gradient} scale-125 animate-pulse`
+                    : 'bg-white/30 hover:bg-white/50'
+                    }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
@@ -395,4 +404,3 @@ export const Hero = () => {
     </section>
   );
 };
-

@@ -63,6 +63,7 @@ a {
   0% {
     width: 0%;
   }
+
   100% {
     width: 100%;
   }
@@ -74,6 +75,7 @@ a {
     opacity: 0;
     transform: translateY(2rem);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -85,6 +87,7 @@ a {
     opacity: 0;
     transform: translateX(-2rem);
   }
+
   100% {
     opacity: 1;
     transform: translateX(0);
@@ -96,6 +99,7 @@ a {
     opacity: 0;
     transform: translateX(2rem);
   }
+
   100% {
     opacity: 1;
     transform: translateX(0);
@@ -107,6 +111,7 @@ a {
     opacity: 0;
     transform: scale(0.9);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -117,16 +122,21 @@ a {
   from {
     width: 0;
   }
+
   to {
     width: 100%;
   }
 }
 
 @keyframes blink {
-  0%, 50% {
+
+  0%,
+  50% {
     border-color: transparent;
   }
-  51%, 100% {
+
+  51%,
+  100% {
     border-color: currentColor;
   }
 }

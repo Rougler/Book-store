@@ -8,7 +8,7 @@ import { Hero } from "@/components/layout/hero";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { AnimatedSection, FloatingElement, PulseGlow } from "@/components/ui/animated-section";
 import { apiRequest } from "@/lib/api-client";
-import { Book } from "@/lib/types";
+import { Book, HomepageContent } from "@/lib/types";
 
 const GrowthStep = ({ step, title, description, icon, delay }: { step: number; title: string; description: string; icon: string; delay: number }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -34,9 +34,8 @@ const GrowthStep = ({ step, title, description, icon, delay }: { step: number; t
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-sm border border-white/20 p-8 shadow-xl transition-all duration-700 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 h-full flex flex-col ${
-        isVisible ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
-      }`}
+      className={`group relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-sm border border-white/20 p-8 shadow-xl transition-all duration-700 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 h-full flex flex-col ${isVisible ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
+        }`}
     >
       {/* Animated background gradient */}
       <div className={`absolute inset-0 bg-gradient-to-br ${colors[step - 1]} opacity-0 transition-opacity duration-500 group-hover:opacity-100`} />
@@ -130,6 +129,23 @@ const HubCard = ({ title, description, icon, color, href, stats }: { title: stri
 export default function HomePage() {
   const [featuredBooks, setFeaturedBooks] = useState<Book[]>([]);
   const [isLoadingBooks, setIsLoadingBooks] = useState(true);
+  const [content, setContent] = useState<HomepageContent | null>(null);
+  const [isLoadingContent, setIsLoadingContent] = useState(true);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const data = await apiRequest<HomepageContent>("/api/content/homepage");
+        setContent(data);
+      } catch (error) {
+        console.error("Failed to fetch homepage content:", error);
+      } finally {
+        setIsLoadingContent(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
 
   useEffect(() => {
     const fetchFeaturedBooks = async () => {
@@ -153,9 +169,25 @@ export default function HomePage() {
     fetchFeaturedBooks();
   }, []);
 
+  if (isLoadingContent) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="relative mx-auto h-24 w-24">
+            <div className="absolute inset-0 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
+            <div className="absolute inset-4 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600" style={{ animationDirection: 'reverse' }}></div>
+          </div>
+          <p className="mt-4 text-lg font-medium text-slate-600">Loading experience...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!content) return null;
+
   return (
     <div className="space-y-20">
-      <Hero />
+      <Hero slides={content.hero_slides} steps={content.hero_steps} />
 
       {/* 4-Step Growth Model */}
       <section className="relative">
@@ -196,50 +228,19 @@ export default function HomePage() {
           </AnimatedSection>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-stretch">
-            <AnimatedSection direction="left" delay={0.1} className="h-full">
-              <div className="h-full">
-                <GrowthStep
-                  step={1}
-                  title="Learn"
-                  description="Build your knowledge foundation through comprehensive courses, books, and mentorship programs designed for personal and professional growth."
-                  icon="📚"
-                  delay={100}
-                />
-              </div>
-            </AnimatedSection>
-            <AnimatedSection direction="up" delay={0.2} className="h-full">
-              <div className="h-full">
-                <GrowthStep
-                  step={2}
-                  title="Earn"
-                  description="Apply your learning through ethical sales and referrals. Generate income with our transparent single-leg compensation plan."
-                  icon="💰"
-                  delay={200}
-                />
-              </div>
-            </AnimatedSection>
-            <AnimatedSection direction="up" delay={0.3} className="h-full">
-              <div className="h-full">
-                <GrowthStep
-                  step={3}
-                  title="Invest"
-                  description="Reinvest in your growth and tools. Build sustainable wealth by strategically investing in your personal and business development."
-                  icon="📈"
-                  delay={300}
-                />
-              </div>
-            </AnimatedSection>
-            <AnimatedSection direction="right" delay={0.4} className="h-full">
-              <div className="h-full">
-                <GrowthStep
-                  step={4}
-                  title="Grow"
-                  description="Scale your leadership and impact. Build teams, mentor others, and create a legacy of knowledge and wealth."
-                  icon="🚀"
-                  delay={400}
-                />
-              </div>
-            </AnimatedSection>
+            {content.growth_model.map((item, index) => (
+              <AnimatedSection key={item.step} direction={index % 2 === 0 ? "left" : "right"} delay={0.1 * (index + 1)} className="h-full">
+                <div className="h-full">
+                  <GrowthStep
+                    step={item.step}
+                    title={item.title}
+                    description={item.description}
+                    icon={item.icon}
+                    delay={item.delay}
+                  />
+                </div>
+              </AnimatedSection>
+            ))}
           </div>
         </div>
       </section>
@@ -363,48 +364,22 @@ export default function HomePage() {
           </AnimatedSection>
 
           <div className="grid gap-8 md:grid-cols-3 items-stretch">
-            <AnimatedSection direction="left" delay={0.1} className="h-full">
-              <div className="h-full">
-                <PulseGlow color="rgba(99, 102, 241, 0.2)">
-                  <HubCard
-                    title="Gyaan Hub"
-                    description="Access comprehensive learning resources, courses, books, and mentorship programs to build your knowledge foundation."
-                    icon="🧠"
-                    color="from-indigo-600 to-purple-600"
-                    href="/learn"
-                    stats="500+"
-                  />
-                </PulseGlow>
-              </div>
-            </AnimatedSection>
-            <AnimatedSection direction="up" delay={0.2} className="h-full">
-              <div className="h-full">
-                <PulseGlow color="rgba(16, 185, 129, 0.2)">
-                  <HubCard
-                    title="Dhan Hub"
-                    description="Build sustainable wealth through our ethical compensation plan with direct referrals and team commissions."
-                    icon="💎"
-                    color="from-emerald-500 to-teal-600"
-                    href="/earn"
-                    stats="₹10L+"
-                  />
-                </PulseGlow>
-              </div>
-            </AnimatedSection>
-            <AnimatedSection direction="right" delay={0.3} className="h-full">
-              <div className="h-full">
-                <PulseGlow color="rgba(236, 72, 153, 0.2)">
-                  <HubCard
-                    title="Community Hub"
-                    description="Join a supportive network of leaders, participate in events, and grow together with like-minded individuals."
-                    icon="🤝"
-                    color="from-pink-500 to-rose-600"
-                    href="/community"
-                    stats="1K+"
-                  />
-                </PulseGlow>
-              </div>
-            </AnimatedSection>
+            {content.platform_hubs.map((hub, index) => (
+              <AnimatedSection key={hub.title} direction="up" delay={0.1 * (index + 1)} className="h-full">
+                <div className="h-full">
+                  <PulseGlow color={`rgba(${index === 0 ? '99, 102, 241' : index === 1 ? '16, 185, 129' : '236, 72, 153'}, 0.2)`}>
+                    <HubCard
+                      title={hub.title}
+                      description={hub.description}
+                      icon={hub.icon}
+                      color={hub.color}
+                      href={hub.href}
+                      stats={hub.stats}
+                    />
+                  </PulseGlow>
+                </div>
+              </AnimatedSection>
+            ))}
           </div>
         </div>
       </section>
@@ -419,50 +394,19 @@ export default function HomePage() {
             <p className="text-lg text-blue-100">Be part of a growing community transforming lives through knowledge and wealth</p>
           </AnimatedSection>
           <div className="grid gap-6 md:grid-cols-4 items-stretch">
-            <AnimatedSection direction="left" delay={0.1} className="h-full">
-              <PulseGlow color="rgba(255, 255, 255, 0.1)" className="h-full">
-                <div className="group rounded-3xl border-2 border-white/20 bg-white/10 p-6 backdrop-blur-sm shadow-lg transition-all duration-300 hover:bg-white/20 hover:scale-105 h-full flex flex-col">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-2xl transition-transform duration-300 group-hover:scale-110">
-                    👥
+            {content.stats.map((stat, index) => (
+              <AnimatedSection key={stat.label} direction="up" delay={0.1 * (index + 1)} className="h-full">
+                <PulseGlow color="rgba(255, 255, 255, 0.1)" className="h-full">
+                  <div className="group rounded-3xl border-2 border-white/20 bg-white/10 p-6 backdrop-blur-sm shadow-lg transition-all duration-300 hover:bg-white/20 hover:scale-105 h-full flex flex-col">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-2xl transition-transform duration-300 group-hover:scale-110">
+                      {stat.icon}
+                    </div>
+                    <div className="mb-2 text-3xl font-bold flex-grow flex items-center">{stat.value}</div>
+                    <div className="text-sm font-medium text-blue-100">{stat.label}</div>
                   </div>
-                  <div className="mb-2 text-3xl font-bold flex-grow flex items-center">10,000+</div>
-                  <div className="text-sm font-medium text-blue-100">Active Partners</div>
-                </div>
-              </PulseGlow>
-            </AnimatedSection>
-            <AnimatedSection direction="up" delay={0.2} className="h-full">
-              <PulseGlow color="rgba(255, 255, 255, 0.1)" className="h-full">
-                <div className="group rounded-3xl border-2 border-white/20 bg-white/10 p-6 backdrop-blur-sm shadow-lg transition-all duration-300 hover:bg-white/20 hover:scale-105 h-full flex flex-col">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-2xl transition-transform duration-300 group-hover:scale-110">
-                    📚
-                  </div>
-                  <div className="mb-2 text-3xl font-bold flex-grow flex items-center">500+</div>
-                  <div className="text-sm font-medium text-blue-100">Learning Resources</div>
-                </div>
-              </PulseGlow>
-            </AnimatedSection>
-            <AnimatedSection direction="up" delay={0.3} className="h-full">
-              <PulseGlow color="rgba(255, 255, 255, 0.1)" className="h-full">
-                <div className="group rounded-3xl border-2 border-white/20 bg-white/10 p-6 backdrop-blur-sm shadow-lg transition-all duration-300 hover:bg-white/20 hover:scale-105 h-full flex flex-col">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-2xl transition-transform duration-300 group-hover:scale-110">
-                    💰
-                  </div>
-                  <div className="mb-2 text-3xl font-bold flex-grow flex items-center">₹1Cr+</div>
-                  <div className="text-sm font-medium text-blue-100">Total Earnings</div>
-                </div>
-              </PulseGlow>
-            </AnimatedSection>
-            <AnimatedSection direction="right" delay={0.4} className="h-full">
-              <PulseGlow color="rgba(255, 255, 255, 0.1)" className="h-full">
-                <div className="group rounded-3xl border-2 border-white/20 bg-white/10 p-6 backdrop-blur-sm shadow-lg transition-all duration-300 hover:bg-white/20 hover:scale-105 h-full flex flex-col">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-2xl transition-transform duration-300 group-hover:scale-110">
-                    🎯
-                  </div>
-                  <div className="mb-2 text-3xl font-bold flex-grow flex items-center">50+</div>
-                  <div className="text-sm font-medium text-blue-100">Events & Workshops</div>
-                </div>
-              </PulseGlow>
-            </AnimatedSection>
+                </PulseGlow>
+              </AnimatedSection>
+            ))}
           </div>
         </div>
       </AnimatedSection>
@@ -502,51 +446,23 @@ export default function HomePage() {
           </div>
         </AnimatedSection>
         <div className="grid gap-6 md:grid-cols-3 items-stretch">
-          <AnimatedSection direction="left" delay={0.1} className="h-full">
-            <PulseGlow color="rgba(59, 130, 246, 0.15)" className="h-full">
-              <div className="group relative overflow-hidden rounded-3xl border-2 border-slate-200 bg-white p-8 shadow-lg transition-all duration-300 hover:border-blue-500 hover:shadow-xl h-full flex flex-col">
-                <FloatingElement intensity={5} speed={4}>
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-4xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
-                    📚
-                  </div>
-                </FloatingElement>
-                <h3 className="mb-3 text-xl font-bold text-slate-900">Comprehensive Learning</h3>
-                <p className="text-sm leading-relaxed text-slate-600 flex-grow">
-                  Access courses, books, and mentorship programs designed to accelerate your personal and professional growth.
-                </p>
-              </div>
-            </PulseGlow>
-          </AnimatedSection>
-          <AnimatedSection direction="up" delay={0.2} className="h-full">
-            <PulseGlow color="rgba(245, 158, 11, 0.15)" className="h-full">
-              <div className="group relative overflow-hidden rounded-3xl border-2 border-slate-200 bg-white p-8 shadow-lg transition-all duration-300 hover:border-yellow-500 hover:shadow-xl h-full flex flex-col">
-                <FloatingElement intensity={5} speed={4}>
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-600 text-4xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
-                    💰
-                  </div>
-                </FloatingElement>
-                <h3 className="mb-3 text-xl font-bold text-slate-900">Ethical Income Generation</h3>
-                <p className="text-sm leading-relaxed text-slate-600 flex-grow">
-                  Build sustainable wealth through our single-leg compensation plan with direct referrals and team commissions.
-                </p>
-              </div>
-            </PulseGlow>
-          </AnimatedSection>
-          <AnimatedSection direction="right" delay={0.3} className="h-full">
-            <PulseGlow color="rgba(34, 197, 94, 0.15)" className="h-full">
-              <div className="group relative overflow-hidden rounded-3xl border-2 border-white p-8 shadow-lg transition-all duration-300 hover:border-green-500 hover:shadow-xl h-full flex flex-col">
-                <FloatingElement intensity={5} speed={4}>
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-4xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
-                    🌱
-                  </div>
-                </FloatingElement>
-                <h3 className="mb-3 text-xl font-bold text-slate-900">Community & Leadership</h3>
-                <p className="text-sm leading-relaxed text-slate-600 flex-grow">
-                  Join a supportive community of leaders and entrepreneurs committed to mutual growth and success.
-                </p>
-              </div>
-            </PulseGlow>
-          </AnimatedSection>
+          {content.why_choose_us.map((item, index) => (
+            <AnimatedSection key={item.title} direction="up" delay={0.1 * (index + 1)} className="h-full">
+              <PulseGlow color={`rgba(${index === 0 ? '59, 130, 246' : index === 1 ? '245, 158, 11' : '34, 197, 94'}, 0.15)`} className="h-full">
+                <div className={`group relative overflow-hidden rounded-3xl border-2 border-slate-200 bg-white p-8 shadow-lg transition-all duration-300 hover:border-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-500 hover:shadow-xl h-full flex flex-col`}>
+                  <FloatingElement intensity={5} speed={4}>
+                    <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-500 to-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-600 text-4xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110`}>
+                      {item.icon}
+                    </div>
+                  </FloatingElement>
+                  <h3 className="mb-3 text-xl font-bold text-slate-900">{item.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 flex-grow">
+                    {item.description}
+                  </p>
+                </div>
+              </PulseGlow>
+            </AnimatedSection>
+          ))}
         </div>
       </section>
 
@@ -563,13 +479,13 @@ export default function HomePage() {
           <AnimatedSection direction="up" delay={0.2}>
             <PulseGlow color="rgba(59, 130, 246, 0.2)">
               <blockquote className="mb-6 text-2xl font-medium leading-relaxed text-slate-800 sm:text-3xl">
-                &ldquo;When you change what you read, you change what you think. When you change what you think, you change how you live.&rdquo;
+                &ldquo;{content.core_quote.text}&rdquo;
               </blockquote>
             </PulseGlow>
           </AnimatedSection>
           <AnimatedSection direction="up" delay={0.3}>
-            <cite className="block text-lg font-semibold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">— Hrushikesh Mohapatro</cite>
-            <p className="mt-6 text-sm italic text-slate-600">Founder, Gyaan AUR Dhan</p>
+            <cite className="block text-lg font-semibold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">{content.core_quote.author}</cite>
+            <p className="mt-6 text-sm italic text-slate-600">{content.core_quote.role}</p>
           </AnimatedSection>
         </div>
       </AnimatedSection>
@@ -610,56 +526,24 @@ export default function HomePage() {
           </AnimatedSection>
 
           <div className="grid gap-12 md:grid-cols-3">
-            <AnimatedSection direction="left" delay={0.2} className="text-center">
-              <PulseGlow color="rgba(59, 130, 246, 0.15)">
-                <div className="relative p-8 rounded-3xl bg-white/80 backdrop-blur-sm border border-blue-200/50 shadow-xl">
-                  <div className="mb-6 flex justify-center">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-4xl shadow-lg">
-                      📚
+            {content.how_it_works.map((step, index) => (
+              <AnimatedSection key={step.step} direction="up" delay={0.1 * (index + 1)} className="text-center">
+                <PulseGlow color={`rgba(${index === 0 ? '59, 130, 246' : index === 1 ? '245, 158, 11' : '34, 197, 94'}, 0.15)`}>
+                  <div className={`relative p-8 rounded-3xl bg-white/80 backdrop-blur-sm border border-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-200/50 shadow-xl`}>
+                    <div className="mb-6 flex justify-center">
+                      <div className={`w-20 h-20 rounded-full bg-gradient-to-r from-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-500 to-${index === 0 ? 'indigo' : index === 1 ? 'orange' : 'emerald'}-600 flex items-center justify-center text-4xl shadow-lg`}>
+                        {step.icon}
+                      </div>
                     </div>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-4">{step.title}</h3>
+                    <p className="text-slate-600 leading-relaxed mb-6">
+                      {step.description}
+                    </p>
+                    <div className={`text-6xl font-bold text-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-600/20`}>0{step.step}</div>
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Step 1: Learn</h3>
-                  <p className="text-slate-600 leading-relaxed mb-6">
-                    Start your journey by accessing our comprehensive library of books, courses, and mentorship programs. Build your knowledge foundation with expert guidance.
-                  </p>
-                  <div className="text-6xl font-bold text-blue-600/20">01</div>
-                </div>
-              </PulseGlow>
-            </AnimatedSection>
-
-            <AnimatedSection direction="up" delay={0.3} className="text-center">
-              <PulseGlow color="rgba(245, 158, 11, 0.15)">
-                <div className="relative p-8 rounded-3xl bg-white/80 backdrop-blur-sm border border-yellow-200/50 shadow-xl">
-                  <div className="mb-6 flex justify-center">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 flex items-center justify-center text-4xl shadow-lg">
-                      💰
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Step 2: Earn</h3>
-                  <p className="text-slate-600 leading-relaxed mb-6">
-                    Apply your knowledge through our ethical referral system. Share what you've learned and earn commissions while helping others grow.
-                  </p>
-                  <div className="text-6xl font-bold text-yellow-600/20">02</div>
-                </div>
-              </PulseGlow>
-            </AnimatedSection>
-
-            <AnimatedSection direction="right" delay={0.4} className="text-center">
-              <PulseGlow color="rgba(34, 197, 94, 0.15)">
-                <div className="relative p-8 rounded-3xl bg-white/80 backdrop-blur-sm border border-green-200/50 shadow-xl">
-                  <div className="mb-6 flex justify-center">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center text-4xl shadow-lg">
-                      🚀
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Step 3: Grow</h3>
-                  <p className="text-slate-600 leading-relaxed mb-6">
-                    Scale your impact by building teams and creating leaders. Reinvest your earnings and multiply your success through mentorship.
-                  </p>
-                  <div className="text-6xl font-bold text-green-600/20">03</div>
-                </div>
-              </PulseGlow>
-            </AnimatedSection>
+                </PulseGlow>
+              </AnimatedSection>
+            ))}
           </div>
         </div>
       </section>
@@ -700,61 +584,21 @@ export default function HomePage() {
           </AnimatedSection>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <AnimatedSection direction="up" delay={0.1} className="h-full">
-              <div className="h-full p-6 rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <div className="text-center mb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    📖
+            {content.key_features.map((feature, index) => (
+              <AnimatedSection key={feature.title} direction="up" delay={0.1 * (index + 1)} className="h-full">
+                <div className="h-full p-6 rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <div className="text-center mb-4">
+                    <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-${index === 0 ? 'blue' : index === 1 ? 'green' : index === 2 ? 'yellow' : 'red'}-500 to-${index === 0 ? 'indigo' : index === 1 ? 'emerald' : index === 2 ? 'orange' : 'pink'}-600 flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">{feature.title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">
+                      {feature.description}
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Digital Library</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Access thousands of books, courses, and resources in our comprehensive digital library with offline reading capabilities.
-                  </p>
                 </div>
-              </div>
-            </AnimatedSection>
-
-            <AnimatedSection direction="up" delay={0.2} className="h-full">
-              <div className="h-full p-6 rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <div className="text-center mb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    👥
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Community Network</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Connect with like-minded individuals, join study groups, and participate in mentorship programs for accelerated growth.
-                  </p>
-                </div>
-              </div>
-            </AnimatedSection>
-
-            <AnimatedSection direction="up" delay={0.3} className="h-full">
-              <div className="h-full p-6 rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <div className="text-center mb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-600 flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    📊
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Progress Tracking</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Monitor your learning progress, earnings, and achievements with detailed analytics and personalized insights.
-                  </p>
-                </div>
-              </div>
-            </AnimatedSection>
-
-            <AnimatedSection direction="up" delay={0.4} className="h-full">
-              <div className="h-full p-6 rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <div className="text-center mb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-red-500 to-pink-600 flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    🎯
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Smart Recommendations</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    AI-powered recommendations suggest the perfect books and courses based on your goals and learning preferences.
-                  </p>
-                </div>
-              </div>
-            </AnimatedSection>
+              </AnimatedSection>
+            ))}
           </div>
         </div>
       </section>
@@ -777,7 +621,7 @@ export default function HomePage() {
             <div className="relative mb-8">
               <PulseGlow color="rgba(16, 185, 129, 0.2)">
                 <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-green-900 to-teal-900 bg-clip-text text-transparent sm:text-6xl lg:text-7xl leading-tight">
-                  Real People, Real Success
+                  {content.success_stories_title}
                 </h2>
               </PulseGlow>
 
@@ -787,7 +631,7 @@ export default function HomePage() {
 
             <div className="relative">
               <p className="mx-auto max-w-4xl text-xl leading-relaxed text-slate-600 sm:text-2xl font-medium">
-                Hear from our community members who transformed their lives through <span className="bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent font-bold">knowledge and entrepreneurship</span>
+                {content.success_stories_subtitle}
               </p>
 
               <div className="mt-6 mx-auto w-24 h-1 bg-gradient-to-r from-green-400 via-teal-400 to-cyan-400 rounded-full opacity-60" />

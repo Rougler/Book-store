@@ -247,6 +247,14 @@ CREATE_STATEMENTS = (
         FOREIGN KEY (user_id) REFERENCES users(id)
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS site_content (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        section_key TEXT UNIQUE NOT NULL,
+        content TEXT NOT NULL, -- JSON string
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
 )
 
 

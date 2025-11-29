@@ -345,3 +345,91 @@ export type DashboardStats = {
   top_performers: Record<string, any>[];
 };
 
+
+// Site Content
+export type HeroSlide = {
+  title: string;
+  subtitle: string;
+  quote: string;
+  author: string;
+  designation: string;
+  gradient: string;
+  bgGradient: string;
+  accentColor: string;
+  image: string;
+  backgroundImage: string;
+  altText: string;
+};
+
+export type HeroStep = {
+  number: number;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  gradient: string;
+};
+
+export type GrowthStep = {
+  step: number;
+  title: string;
+  description: string;
+  icon: string;
+  delay: number;
+};
+
+export type HubCard = {
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  href: string;
+  stats?: string;
+};
+
+export type StatItem = {
+  icon: string;
+  value: string;
+  label: string;
+};
+
+export type WhyChooseItem = {
+  icon: string;
+  title: string;
+  description: string;
+};
+
+export type Quote = {
+  text: string;
+  author: string;
+  role: string;
+};
+
+export type HowItWorksStep = {
+  step: number;
+  title: string;
+  description: string;
+  icon: string;
+};
+
+export type KeyFeature = {
+  icon: string;
+  title: string;
+  description: string;
+};
+
+export type HomepageContent = {
+  hero_slides: HeroSlide[];
+  hero_steps: HeroStep[];
+  growth_model: GrowthStep[];
+  platform_hubs: HubCard[];
+  stats: StatItem[];
+  why_choose_us: WhyChooseItem[];
+  core_quote: Quote;
+  how_it_works: HowItWorksStep[];
+  key_features: KeyFeature[];
+  success_stories_title: string;
+  success_stories_subtitle: string;
+};
+
+

@@ -46,7 +46,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-6">
+    <div className="mx-auto mt-40 flex max-w-md flex-col gap-6">
       <SectionHeading title="Login" description="Sign in to access your account." />
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <InputField id="email" label="Email" type="email" register={register} error={errors.email} autoComplete="email" />

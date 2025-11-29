@@ -87,7 +87,8 @@ const refreshTokens = async (store: TokenStorage) => {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to refresh token");
+      store.clearTokens();
+      return null;
     }
 
     const nextTokens = (await response.json()) as Tokens;

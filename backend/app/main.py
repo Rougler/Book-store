@@ -12,6 +12,7 @@ from .routers.compensation import router as compensation_router
 from .routers.orders import router as orders_router
 from .routers.packages import router as packages_router
 from .routers.uploads import router as uploads_router
+from .routers.content import router as content_router
 from .services.scheduler import lifespan
 
 
@@ -39,6 +40,7 @@ def create_app() -> FastAPI:
     app.include_router(compensation_router, prefix="/api/compensation", tags=["compensation"])
     app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
     app.include_router(uploads_router, prefix="/api/uploads", tags=["uploads"])
+    app.include_router(content_router, prefix="/api/content", tags=["content"])
 
     return app
 

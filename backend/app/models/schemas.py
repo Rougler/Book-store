@@ -438,3 +438,95 @@ class AdminUser(BaseModel):
     role: str
     created_at: datetime
 
+
+# Site Content Management
+class HeroSlide(BaseModel):
+    title: str
+    subtitle: str
+    quote: str
+    author: str
+    designation: str
+    gradient: str
+    bgGradient: str
+    accentColor: str
+    image: str
+    backgroundImage: str
+    altText: str
+
+
+class HeroStep(BaseModel):
+    number: int
+    title: str
+    description: str
+    icon: str
+    color: str
+    gradient: str
+
+
+class GrowthStep(BaseModel):
+    step: int
+    title: str
+    description: str
+    icon: str
+    delay: int
+
+
+class HubCard(BaseModel):
+    title: str
+    description: str
+    icon: str
+    color: str
+    href: str
+    stats: Optional[str] = None
+
+
+class StatItem(BaseModel):
+    icon: str
+    value: str
+    label: str
+
+
+class WhyChooseItem(BaseModel):
+    icon: str
+    title: str
+    description: str
+
+
+class Quote(BaseModel):
+    text: str
+    author: str
+    role: str
+
+
+class HowItWorksStep(BaseModel):
+    step: int
+    title: str
+    description: str
+    icon: str
+
+
+class KeyFeature(BaseModel):
+    icon: str
+    title: str
+    description: str
+
+
+class HomepageContent(BaseModel):
+    hero_slides: List[HeroSlide]
+    hero_steps: List[HeroStep]
+    growth_model: List[GrowthStep]
+    platform_hubs: List[HubCard]
+    stats: List[StatItem]
+    why_choose_us: List[WhyChooseItem]
+    core_quote: Quote
+    how_it_works: List[HowItWorksStep]
+    key_features: List[KeyFeature]
+    success_stories_title: str = "Real People, Real Success"
+    success_stories_subtitle: str = "Hear from our community members who transformed their lives through knowledge and entrepreneurship"
+
+
+class ContentUpdate(BaseModel):
+    section_key: str
+    content: dict
+
+
