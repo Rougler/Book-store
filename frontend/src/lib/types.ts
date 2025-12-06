@@ -428,6 +428,17 @@ export type HomepageContent = {
   core_quote: Quote;
   how_it_works: HowItWorksStep[];
   key_features: KeyFeature[];
+  // Section Titles and Subtitles
+  growth_model_title: string;
+  growth_model_subtitle: string;
+  platform_hubs_title: string;
+  platform_hubs_subtitle: string;
+  why_choose_us_title: string;
+  why_choose_us_subtitle: string;
+  how_it_works_title: string;
+  how_it_works_subtitle: string;
+  key_features_title: string;
+  key_features_subtitle: string;
   success_stories_title: string;
   success_stories_subtitle: string;
 };

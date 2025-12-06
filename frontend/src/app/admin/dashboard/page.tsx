@@ -130,6 +130,13 @@ export default function AdminDashboard() {
         <SectionHeading title="Admin Dashboard" description="Manage your bookstore" />
         <div className="flex items-center gap-4">
           <button
+            onClick={() => router.push("/admin/content")}
+            className="rounded-full bg-purple-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-700"
+            aria-label="Manage content"
+          >
+            Manage Content
+          </button>
+          <button
             onClick={() => router.push("/admin/books")}
             className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
             aria-label="Manage books"

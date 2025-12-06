@@ -183,17 +183,36 @@ export default function HomePage() {
     );
   }
 
-  if (!content) return null;
+  if (!content) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="text-center max-w-md px-6">
+          <div className="text-6xl mb-6">📚</div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Content Loading</h2>
+          <p className="text-slate-600 mb-8">We're setting up your experience. Please refresh the page in a moment.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-20">
+    <div className="w-full overflow-x-hidden">
+      {/* Hero Banner - Full Width */}
       <Hero slides={content.hero_slides} steps={content.hero_steps} />
 
-      {/* 4-Step Growth Model */}
-      <section className="relative">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/30 via-transparent to-purple-50/30 -mx-6" />
-        <div className="relative mx-auto max-w-7xl px-6">
+      {/* Content Sections - Constrained Width */}
+      <div className="mx-auto max-w-7xl space-y-20 px-4 sm:px-6 lg:px-8">
+        {/* 4-Step Growth Model */}
+        <section className="relative py-12 sm:py-16 lg:py-20">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/30 via-transparent to-purple-50/30" />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <AnimatedSection direction="up" delay={0.2} className="text-center mb-20">
             <div className="mb-8">
               <FloatingElement intensity={5} speed={4}>
@@ -208,7 +227,7 @@ export default function HomePage() {
             <div className="relative mb-8">
               <PulseGlow color="rgba(99, 102, 241, 0.2)">
                 <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent sm:text-6xl lg:text-7xl leading-tight">
-                  Your Growth Journey
+                  {content.growth_model_title || "Your Growth Journey"}
                 </h2>
               </PulseGlow>
 
@@ -219,7 +238,7 @@ export default function HomePage() {
 
             <div className="relative">
               <p className="mx-auto max-w-4xl text-xl leading-relaxed text-slate-600 sm:text-2xl font-medium">
-                Follow our proven <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-bold">4-Step Growth Model</span> to transform your life and achieve lasting success through knowledge and wealth creation
+                {content.growth_model_subtitle || "Follow our proven 4-Step Growth Model to transform your life and achieve lasting success through knowledge and wealth creation"}
               </p>
 
               {/* Subtle underline */}
@@ -245,10 +264,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Books Section */}
-      <section className="relative" id="featured-books-section">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-50/30 via-transparent to-indigo-50/30 -mx-6" />
-        <div className="relative mx-auto max-w-7xl px-6">
+        {/* Featured Books Section */}
+        <section className="relative py-12 sm:py-16 lg:py-20" id="featured-books-section">
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-50/30 via-transparent to-indigo-50/30" />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <AnimatedSection direction="up" delay={0.2} className="text-center mb-20">
             <div className="mb-8">
               <FloatingElement intensity={6} speed={5}>
@@ -326,10 +345,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Platform Hubs */}
-      <section className="relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/30 via-transparent to-blue-50/30 -mx-6" />
-        <div className="relative mx-auto max-w-7xl px-6">
+        {/* Platform Hubs */}
+        <section className="relative py-12 sm:py-16 lg:py-20">
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/30 via-transparent to-blue-50/30" />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <AnimatedSection direction="up" delay={0.2} className="text-center mb-20">
             <div className="mb-8">
               <FloatingElement intensity={4} speed={6}>
@@ -344,7 +363,7 @@ export default function HomePage() {
             <div className="relative mb-8">
               <PulseGlow color="rgba(16, 185, 129, 0.2)">
                 <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-emerald-900 to-teal-900 bg-clip-text text-transparent sm:text-6xl lg:text-7xl leading-tight">
-                  Explore Our Platform Hubs
+                  {content.platform_hubs_title || "Explore Our Platform Hubs"}
                 </h2>
               </PulseGlow>
 
@@ -355,7 +374,7 @@ export default function HomePage() {
 
             <div className="relative">
               <p className="mx-auto max-w-4xl text-xl leading-relaxed text-slate-600 sm:text-2xl font-medium">
-                Three powerful <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent font-bold">zones</span> designed to accelerate your journey to mastery and financial freedom through interconnected growth
+                {content.platform_hubs_subtitle || "Three powerful zones designed to accelerate your journey to mastery and financial freedom through interconnected growth"}
               </p>
 
               {/* Subtle underline */}
@@ -384,9 +403,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Statistics */}
-      <AnimatedSection direction="scale" delay={0.3} className="rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 px-8 py-12 text-white shadow-2xl">
-        <div className="mx-auto max-w-6xl">
+        {/* Statistics */}
+        <AnimatedSection direction="scale" delay={0.3} className="mx-auto max-w-7xl rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 px-4 py-12 text-white shadow-2xl sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl">
           <AnimatedSection direction="up" delay={0.1} className="mb-8 text-center">
             <FloatingElement intensity={8} speed={4}>
               <h2 className="mb-3 text-3xl font-bold sm:text-4xl">Join Thousands of Success Stories</h2>
@@ -411,89 +430,91 @@ export default function HomePage() {
         </div>
       </AnimatedSection>
 
-      {/* Why Choose Us */}
-      <section className="space-y-8">
-        <AnimatedSection direction="up" delay={0.2} className="text-center mb-20">
-          <div className="mb-8">
-            <FloatingElement intensity={5} speed={5}>
-              <div className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/50 backdrop-blur-sm px-8 py-3 text-sm font-semibold text-blue-700 shadow-lg">
-                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse" />
-                Why Choose Us
-                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 animate-pulse" />
+        {/* Why Choose Us */}
+        <section className="relative py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <AnimatedSection direction="up" delay={0.2} className="text-center mb-12 sm:mb-16 lg:mb-20">
+              <div className="mb-8">
+                <FloatingElement intensity={5} speed={5}>
+                  <div className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/50 backdrop-blur-sm px-8 py-3 text-sm font-semibold text-blue-700 shadow-lg">
+                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse" />
+                    Why Choose Us
+                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 animate-pulse" />
+                  </div>
+                </FloatingElement>
               </div>
-            </FloatingElement>
-          </div>
 
-          <div className="relative mb-8">
-            <PulseGlow color="rgba(59, 130, 246, 0.2)">
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent sm:text-6xl lg:text-7xl leading-tight">
-                Why Choose Gyaan AUR Dhan?
-              </h2>
-            </PulseGlow>
+              <div className="relative mb-8">
+                <PulseGlow color="rgba(59, 130, 246, 0.2)">
+                  <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent sm:text-6xl lg:text-7xl leading-tight">
+                    {content.why_choose_us_title || "Why Choose Gyaan AUR Dhan?"}
+                  </h2>
+                </PulseGlow>
 
-            {/* Decorative elements */}
-            <div className="absolute -top-6 -left-6 w-12 h-12 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 opacity-20 animate-pulse" />
-            <div className="absolute -bottom-4 -right-4 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
-          </div>
+                {/* Decorative elements */}
+                <div className="absolute -top-6 -left-6 w-12 h-12 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 opacity-20 animate-pulse" />
+                <div className="absolute -bottom-4 -right-4 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
+              </div>
 
-          <div className="relative">
-            <p className="mx-auto max-w-4xl text-xl leading-relaxed text-slate-600 sm:text-2xl font-medium">
-              Join thousands of <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-bold">learners and entrepreneurs</span> building their future
-            </p>
+              <div className="relative">
+                <p className="mx-auto max-w-4xl text-xl leading-relaxed text-slate-600 sm:text-2xl font-medium">
+                  {content.why_choose_us_subtitle || "Join thousands of learners and entrepreneurs building their future"}
+                </p>
 
-            {/* Subtle underline */}
-            <div className="mt-6 mx-auto w-24 h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 rounded-full opacity-60" />
-          </div>
-        </AnimatedSection>
-        <div className="grid gap-6 md:grid-cols-3 items-stretch">
-          {content.why_choose_us.map((item, index) => (
-            <AnimatedSection key={item.title} direction="up" delay={0.1 * (index + 1)} className="h-full">
-              <PulseGlow color={`rgba(${index === 0 ? '59, 130, 246' : index === 1 ? '245, 158, 11' : '34, 197, 94'}, 0.15)`} className="h-full">
-                <div className={`group relative overflow-hidden rounded-3xl border-2 border-slate-200 bg-white p-8 shadow-lg transition-all duration-300 hover:border-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-500 hover:shadow-xl h-full flex flex-col`}>
-                  <FloatingElement intensity={5} speed={4}>
-                    <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-500 to-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-600 text-4xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110`}>
-                      {item.icon}
+                {/* Subtle underline */}
+                <div className="mt-6 mx-auto w-24 h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 rounded-full opacity-60" />
+              </div>
+            </AnimatedSection>
+            <div className="grid gap-6 md:grid-cols-3 items-stretch">
+              {content.why_choose_us.map((item, index) => (
+                <AnimatedSection key={item.title} direction="up" delay={0.1 * (index + 1)} className="h-full">
+                  <PulseGlow color={`rgba(${index === 0 ? '59, 130, 246' : index === 1 ? '245, 158, 11' : '34, 197, 94'}, 0.15)`} className="h-full">
+                    <div className={`group relative overflow-hidden rounded-3xl border-2 border-slate-200 bg-white p-8 shadow-lg transition-all duration-300 hover:border-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-500 hover:shadow-xl h-full flex flex-col`}>
+                      <FloatingElement intensity={5} speed={4}>
+                        <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-500 to-${index === 0 ? 'blue' : index === 1 ? 'yellow' : 'green'}-600 text-4xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110`}>
+                          {item.icon}
+                        </div>
+                      </FloatingElement>
+                      <h3 className="mb-3 text-xl font-bold text-slate-900">{item.title}</h3>
+                      <p className="text-sm leading-relaxed text-slate-600 flex-grow">
+                        {item.description}
+                      </p>
                     </div>
-                  </FloatingElement>
-                  <h3 className="mb-3 text-xl font-bold text-slate-900">{item.title}</h3>
-                  <p className="text-sm leading-relaxed text-slate-600 flex-grow">
-                    {item.description}
-                  </p>
-                </div>
+                  </PulseGlow>
+                </AnimatedSection>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Core Quote */}
+        <AnimatedSection direction="scale" delay={0.3} className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-gradient-to-br from-slate-50 via-blue-50 to-yellow-50 px-4 py-12 shadow-lg sm:px-6 lg:px-8 lg:py-16">
+          <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-blue-200/30 blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-yellow-200/30 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="relative mx-auto max-w-4xl text-center">
+            <AnimatedSection direction="up" delay={0.1}>
+              <FloatingElement intensity={10} speed={6}>
+                <div className="mb-6 text-6xl">💭</div>
+              </FloatingElement>
+            </AnimatedSection>
+            <AnimatedSection direction="up" delay={0.2}>
+              <PulseGlow color="rgba(59, 130, 246, 0.2)">
+                <blockquote className="mb-6 text-2xl font-medium leading-relaxed text-slate-800 sm:text-3xl">
+                  &ldquo;{content.core_quote.text}&rdquo;
+                </blockquote>
               </PulseGlow>
             </AnimatedSection>
-          ))}
-        </div>
-      </section>
+            <AnimatedSection direction="up" delay={0.3}>
+              <cite className="block text-lg font-semibold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">{content.core_quote.author}</cite>
+              <p className="mt-6 text-sm italic text-slate-600">{content.core_quote.role}</p>
+            </AnimatedSection>
+          </div>
+        </AnimatedSection>
 
-      {/* Core Quote */}
-      <AnimatedSection direction="scale" delay={0.3} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-50 via-blue-50 to-yellow-50 px-8 py-16 shadow-lg">
-        <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-blue-200/30 blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-yellow-200/30 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="relative mx-auto max-w-4xl text-center">
-          <AnimatedSection direction="up" delay={0.1}>
-            <FloatingElement intensity={10} speed={6}>
-              <div className="mb-6 text-6xl">💭</div>
-            </FloatingElement>
-          </AnimatedSection>
-          <AnimatedSection direction="up" delay={0.2}>
-            <PulseGlow color="rgba(59, 130, 246, 0.2)">
-              <blockquote className="mb-6 text-2xl font-medium leading-relaxed text-slate-800 sm:text-3xl">
-                &ldquo;{content.core_quote.text}&rdquo;
-              </blockquote>
-            </PulseGlow>
-          </AnimatedSection>
-          <AnimatedSection direction="up" delay={0.3}>
-            <cite className="block text-lg font-semibold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">{content.core_quote.author}</cite>
-            <p className="mt-6 text-sm italic text-slate-600">{content.core_quote.role}</p>
-          </AnimatedSection>
-        </div>
-      </AnimatedSection>
-
-      {/* How It Works */}
-      <section className="relative py-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-50/30 via-transparent to-red-50/30 -mx-6" />
-        <div className="relative mx-auto max-w-7xl px-6">
+        {/* How It Works */}
+        <section className="relative py-12 sm:py-16 lg:py-20">
+          <div className="absolute inset-0 bg-gradient-to-b from-orange-50/30 via-transparent to-red-50/30" />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <AnimatedSection direction="up" delay={0.2} className="text-center mb-20">
             <div className="mb-8">
               <FloatingElement intensity={4} speed={6}>
@@ -508,7 +529,7 @@ export default function HomePage() {
             <div className="relative mb-8">
               <PulseGlow color="rgba(239, 68, 68, 0.2)">
                 <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-orange-900 to-red-900 bg-clip-text text-transparent sm:text-6xl lg:text-7xl leading-tight">
-                  Your Journey to Success
+                  {content.how_it_works_title || "Your Journey to Success"}
                 </h2>
               </PulseGlow>
 
@@ -518,7 +539,7 @@ export default function HomePage() {
 
             <div className="relative">
               <p className="mx-auto max-w-4xl text-xl leading-relaxed text-slate-600 sm:text-2xl font-medium">
-                Discover how our integrated platform combines <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent font-bold">learning and earning</span> to accelerate your growth journey
+                {content.how_it_works_subtitle || "Discover how our integrated platform combines learning and earning to accelerate your growth journey"}
               </p>
 
               <div className="mt-6 mx-auto w-24 h-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-full opacity-60" />
@@ -548,11 +569,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Key Features */}
-      <section className="relative py-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/30 via-transparent to-purple-50/30 -mx-6" />
-        <div className="relative mx-auto max-w-7xl px-6">
-          <AnimatedSection direction="up" delay={0.2} className="text-center mb-20">
+        {/* Key Features */}
+        <section className="relative py-12 sm:py-16 lg:py-20">
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/30 via-transparent to-purple-50/30" />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <AnimatedSection direction="up" delay={0.2} className="text-center mb-12 sm:mb-16 lg:mb-20">
             <div className="mb-8">
               <FloatingElement intensity={5} speed={5}>
                 <div className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200/50 backdrop-blur-sm px-8 py-3 text-sm font-semibold text-indigo-700 shadow-lg">
@@ -566,7 +587,7 @@ export default function HomePage() {
             <div className="relative mb-8">
               <PulseGlow color="rgba(147, 51, 234, 0.2)">
                 <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent sm:text-6xl lg:text-7xl leading-tight">
-                  Powerful Tools for Success
+                  {content.key_features_title || "Powerful Tools for Success"}
                 </h2>
               </PulseGlow>
 
@@ -576,7 +597,7 @@ export default function HomePage() {
 
             <div className="relative">
               <p className="mx-auto max-w-4xl text-xl leading-relaxed text-slate-600 sm:text-2xl font-medium">
-                Explore the comprehensive features designed to accelerate your <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-bold">learning and earning journey</span>
+                {content.key_features_subtitle || "Explore the comprehensive features designed to accelerate your learning and earning journey"}
               </p>
 
               <div className="mt-6 mx-auto w-24 h-1 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 rounded-full opacity-60" />
@@ -603,11 +624,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Success Stories */}
-      <section className="relative py-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-green-50/30 via-transparent to-teal-50/30 -mx-6" />
-        <div className="relative mx-auto max-w-7xl px-6">
-          <AnimatedSection direction="up" delay={0.2} className="text-center mb-20">
+        {/* Success Stories */}
+        <section className="relative py-12 sm:py-16 lg:py-20">
+          <div className="absolute inset-0 bg-gradient-to-b from-green-50/30 via-transparent to-teal-50/30" />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <AnimatedSection direction="up" delay={0.2} className="text-center mb-12 sm:mb-16 lg:mb-20">
             <div className="mb-8">
               <FloatingElement intensity={3} speed={7}>
                 <div className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-green-50 via-teal-50 to-cyan-50 border border-green-200/50 backdrop-blur-sm px-8 py-3 text-sm font-semibold text-green-700 shadow-lg">
@@ -714,41 +735,42 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Call to Action */}
-      <AnimatedSection direction="scale" delay={0.4} className="rounded-3xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-8 py-16 text-center text-white shadow-2xl">
-        <div className="mx-auto max-w-3xl">
-          <AnimatedSection direction="up" delay={0.1}>
-            <FloatingElement intensity={8} speed={4}>
-              <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Ready to Transform Your Life?</h2>
-            </FloatingElement>
-          </AnimatedSection>
-          <AnimatedSection direction="up" delay={0.2}>
-            <p className="mb-8 text-lg text-blue-100">
-              Join Gyaan AUR Dhan today and start your journey towards knowledge, wealth, and leadership excellence.
-            </p>
-          </AnimatedSection>
-          <AnimatedSection direction="up" delay={0.3}>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <PulseGlow color="rgba(245, 158, 11, 0.3)">
+        {/* Call to Action */}
+        <AnimatedSection direction="scale" delay={0.4} className="mx-auto max-w-7xl rounded-3xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-4 py-12 text-center text-white shadow-2xl sm:px-6 lg:px-8 lg:py-16">
+          <div className="mx-auto max-w-3xl">
+            <AnimatedSection direction="up" delay={0.1}>
+              <FloatingElement intensity={8} speed={4}>
+                <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Ready to Transform Your Life?</h2>
+              </FloatingElement>
+            </AnimatedSection>
+            <AnimatedSection direction="up" delay={0.2}>
+              <p className="mb-8 text-lg text-blue-100">
+                Join Gyaan AUR Dhan today and start your journey towards knowledge, wealth, and leadership excellence.
+              </p>
+            </AnimatedSection>
+            <AnimatedSection direction="up" delay={0.3}>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <PulseGlow color="rgba(245, 158, 11, 0.3)">
+                  <Link
+                    href="/register"
+                    className="rounded-full bg-yellow-500 px-8 py-4 text-base font-semibold text-blue-900 shadow-lg transition-all duration-300 hover:bg-yellow-400 hover:scale-105 hover:shadow-xl cursor-pointer"
+                    aria-label="Start your journey"
+                  >
+                    Start Your Journey
+                  </Link>
+                </PulseGlow>
                 <Link
-                  href="/register"
-                  className="rounded-full bg-yellow-500 px-8 py-4 text-base font-semibold text-blue-900 shadow-lg transition-all duration-300 hover:bg-yellow-400 hover:scale-105 hover:shadow-xl cursor-pointer"
-                  aria-label="Start your journey"
+                  href="/login"
+                  className="rounded-full border-2 border-white/40 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white/20 cursor-pointer"
+                  aria-label="Sign in"
                 >
-                  Start Your Journey
+                  Sign In
                 </Link>
-              </PulseGlow>
-              <Link
-                href="/login"
-                className="rounded-full border-2 border-white/40 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white/20 cursor-pointer"
-                aria-label="Sign in"
-              >
-                Sign In
-              </Link>
-            </div>
-          </AnimatedSection>
-        </div>
-      </AnimatedSection>
+              </div>
+            </AnimatedSection>
+          </div>
+        </AnimatedSection>
+      </div>
     </div>
   );
 }

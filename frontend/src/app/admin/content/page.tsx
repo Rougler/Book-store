@@ -95,7 +95,7 @@ export default function ContentManagementPage() {
         <div className="min-h-screen bg-slate-50">
             <div className="flex">
                 {/* Sidebar Navigation */}
-                <aside className="w-64 bg-white border-r border-slate-200 min-h-screen sticky top-0">
+                <aside className="w-64 bg-white border-r border-slate-200 min-h-screen sticky top-20 md:top-24">
                     <div className="p-6">
                         <h2 className="text-xl font-bold text-slate-900 mb-6">Content Sections</h2>
                         <nav className="space-y-1">
@@ -169,17 +169,67 @@ export default function ContentManagementPage() {
                         )}
 
                         {activeSection === "growth_model" && (
-                            <GrowthModelEditor
-                                steps={content.growth_model}
-                                onChange={(steps) => updateContent("growth_model", steps)}
-                            />
+                            <div>
+                                <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-6">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Section Title & Subtitle</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                                            <input
+                                                type="text"
+                                                value={content.growth_model_title}
+                                                onChange={(e) => updateContent("growth_model_title", e.target.value)}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Subtitle</label>
+                                            <textarea
+                                                value={content.growth_model_subtitle}
+                                                onChange={(e) => updateContent("growth_model_subtitle", e.target.value)}
+                                                rows={2}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <GrowthModelEditor
+                                    steps={content.growth_model}
+                                    onChange={(steps) => updateContent("growth_model", steps)}
+                                />
+                            </div>
                         )}
 
                         {activeSection === "platform_hubs" && (
-                            <PlatformHubsEditor
-                                hubs={content.platform_hubs}
-                                onChange={(hubs) => updateContent("platform_hubs", hubs)}
-                            />
+                            <div>
+                                <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-6">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Section Title & Subtitle</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                                            <input
+                                                type="text"
+                                                value={content.platform_hubs_title}
+                                                onChange={(e) => updateContent("platform_hubs_title", e.target.value)}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Subtitle</label>
+                                            <textarea
+                                                value={content.platform_hubs_subtitle}
+                                                onChange={(e) => updateContent("platform_hubs_subtitle", e.target.value)}
+                                                rows={2}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <PlatformHubsEditor
+                                    hubs={content.platform_hubs}
+                                    onChange={(hubs) => updateContent("platform_hubs", hubs)}
+                                />
+                            </div>
                         )}
 
                         {activeSection === "stats" && (
@@ -190,10 +240,35 @@ export default function ContentManagementPage() {
                         )}
 
                         {activeSection === "why_choose_us" && (
-                            <WhyChooseUsEditor
-                                items={content.why_choose_us}
-                                onChange={(items) => updateContent("why_choose_us", items)}
-                            />
+                            <div>
+                                <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-6">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Section Title & Subtitle</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                                            <input
+                                                type="text"
+                                                value={content.why_choose_us_title}
+                                                onChange={(e) => updateContent("why_choose_us_title", e.target.value)}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Subtitle</label>
+                                            <textarea
+                                                value={content.why_choose_us_subtitle}
+                                                onChange={(e) => updateContent("why_choose_us_subtitle", e.target.value)}
+                                                rows={2}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <WhyChooseUsEditor
+                                    items={content.why_choose_us}
+                                    onChange={(items) => updateContent("why_choose_us", items)}
+                                />
+                            </div>
                         )}
 
                         {activeSection === "core_quote" && (
@@ -204,17 +279,67 @@ export default function ContentManagementPage() {
                         )}
 
                         {activeSection === "how_it_works" && (
-                            <HowItWorksEditor
-                                steps={content.how_it_works}
-                                onChange={(steps) => updateContent("how_it_works", steps)}
-                            />
+                            <div>
+                                <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-6">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Section Title & Subtitle</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                                            <input
+                                                type="text"
+                                                value={content.how_it_works_title}
+                                                onChange={(e) => updateContent("how_it_works_title", e.target.value)}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Subtitle</label>
+                                            <textarea
+                                                value={content.how_it_works_subtitle}
+                                                onChange={(e) => updateContent("how_it_works_subtitle", e.target.value)}
+                                                rows={2}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <HowItWorksEditor
+                                    steps={content.how_it_works}
+                                    onChange={(steps) => updateContent("how_it_works", steps)}
+                                />
+                            </div>
                         )}
 
                         {activeSection === "key_features" && (
-                            <KeyFeaturesEditor
-                                features={content.key_features}
-                                onChange={(features) => updateContent("key_features", features)}
-                            />
+                            <div>
+                                <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-6">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Section Title & Subtitle</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                                            <input
+                                                type="text"
+                                                value={content.key_features_title}
+                                                onChange={(e) => updateContent("key_features_title", e.target.value)}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Subtitle</label>
+                                            <textarea
+                                                value={content.key_features_subtitle}
+                                                onChange={(e) => updateContent("key_features_subtitle", e.target.value)}
+                                                rows={2}
+                                                className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-indigo-500 focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <KeyFeaturesEditor
+                                    features={content.key_features}
+                                    onChange={(features) => updateContent("key_features", features)}
+                                />
+                            </div>
                         )}
 
                         {activeSection === "success_stories" && (

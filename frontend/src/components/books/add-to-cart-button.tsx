@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/context/auth-context";
 import { Book } from "@/lib/types";
 import { useCartStore } from "@/store/cart-store";
 
@@ -15,7 +14,6 @@ type AddToCartButtonProps = {
 export const AddToCartButton = ({ book, quantity = 1, size = "md" }: AddToCartButtonProps) => {
   const addItem = useCartStore((state) => state.addItem);
   const items = useCartStore((state) => state.items);
-  const { user } = useAuth();
   const router = useRouter();
 
   // Check if book is already in cart
@@ -26,13 +24,8 @@ export const AddToCartButton = ({ book, quantity = 1, size = "md" }: AddToCartBu
   };
 
   const handleGoToCart = () => {
-    if (!user) {
-      // User not logged in, redirect to login with return path
-      router.push("/login?redirectTo=/cart");
-    } else {
-      // User is logged in, go to cart
-      router.push("/cart");
-    }
+    // Cart is accessible to everyone, no login required
+    router.push("/cart");
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {

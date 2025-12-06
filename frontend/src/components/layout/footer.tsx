@@ -7,7 +7,7 @@ export const Footer = () => {
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      <div className="relative mx-auto w-full max-w-7xl px-6 py-16">
+      <div className="relative mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         {/* Main footer content */}
         <div className="grid gap-12 md:grid-cols-4">
           {/* Brand section */}

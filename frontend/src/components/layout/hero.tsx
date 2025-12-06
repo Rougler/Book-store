@@ -189,7 +189,7 @@ export const Hero = ({ slides, steps: propSteps }: HeroProps) => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background image that changes with slides */}
       <div className="absolute inset-0 transition-all duration-2000">
         <div
@@ -233,7 +233,7 @@ export const Hero = ({ slides, steps: propSteps }: HeroProps) => {
       {/* Glassmorphism overlay */}
       <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 py-20">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         {/* Carousel Container */}
         <div className="relative">
           {/* Carousel Content */}

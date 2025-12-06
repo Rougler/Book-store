@@ -70,6 +70,42 @@ def get_book(book_id: int) -> Book:
     return _book_from_row(row)
 
 
+def get_similar_books(book_id: int, limit: int = 4) -> list[Book]:
+    """Get similar books by category or author, excluding the current book."""
+    with db_session() as conn:
+        # First get the current book to find its category and author
+        current_book_row = conn.execute(
+            "SELECT category, author FROM books WHERE id = ?",
+            (book_id,)
+        ).fetchone()
+        
+        if not current_book_row:
+            return []
+        
+        category = current_book_row["category"]
+        author = current_book_row["author"]
+        
+        # Get similar books by category first, then by author
+        rows = conn.execute(
+            """
+            SELECT * FROM books 
+            WHERE id != ? 
+            AND is_active = 1
+            AND (
+                (category = ? AND category IS NOT NULL AND category != '')
+                OR (author = ? AND author IS NOT NULL AND author != '')
+            )
+            ORDER BY 
+                CASE WHEN category = ? THEN 1 ELSE 2 END,
+                created_at DESC
+            LIMIT ?
+            """,
+            (book_id, category, author, category, limit)
+        ).fetchall()
+        
+        return [_book_from_row(row) for row in rows]
+
+
 def create_book(payload: BookCreate) -> Book:
     with db_session() as conn:
         cursor = conn.cursor()

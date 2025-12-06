@@ -134,6 +134,34 @@ The frontend will be available at: http://localhost:3000
 - **Password:** `demo12345`
 - **Referral Code:** `DEMO2024`
 
+## 💳 Payment Setup (Razorpay)
+
+To enable UPI payments, you need to configure Razorpay:
+
+1. **Sign up for Razorpay:**
+   - Go to https://razorpay.com
+   - Create an account and verify your business details
+
+2. **Get your API keys:**
+   - Go to Dashboard → Settings → API Keys
+   - Copy your **Key ID** and **Secret Key** (use Test keys for development)
+
+3. **Configure in backend:**
+   - Create a `.env` file in the `backend/` folder:
+     ```
+     RAZORPAY_KEY_ID=rzp_test_your_key_id_here
+     RAZORPAY_KEY_SECRET=your_secret_key_here
+     ```
+   - Or update `backend/app/config.py` directly
+
+4. **For frontend (optional):**
+   - Add to `frontend/.env.local`:
+     ```
+     NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_your_key_id_here
+     ```
+
+**Note:** Without Razorpay keys, only COD (Cash on Delivery) payment option will work.
+
 ## 🎨 Design System
 
 ### Branding Colors

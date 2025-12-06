@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { useAuth } from "@/context/auth-context";
 import { Book } from "@/lib/types";
 import { useCartStore } from "@/store/cart-store";
 
@@ -15,7 +14,6 @@ type BookCardProps = {
 export const BookCard = ({ book }: BookCardProps) => {
   const addItem = useCartStore((state) => state.addItem);
   const items = useCartStore((state) => state.items);
-  const { user } = useAuth();
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -27,13 +25,8 @@ export const BookCard = ({ book }: BookCardProps) => {
   };
 
   const handleGoToCart = () => {
-    if (!user) {
-      // User not logged in, redirect to login with return path
-      router.push("/login?redirectTo=/cart");
-    } else {
-      // User is logged in, go to cart
-      router.push("/cart");
-    }
+    // Cart is accessible to everyone, no login required
+    router.push("/cart");
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -49,19 +42,23 @@ export const BookCard = ({ book }: BookCardProps) => {
 
   return (
     <article
-      className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl bg-white/80 backdrop-blur-sm border border-white/20 p-6 shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 cursor-pointer"
+      className="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl bg-white/80 backdrop-blur-sm border border-white/20 p-3 sm:p-4 shadow-md transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Gradient background on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-purple-50/30 to-pink-50/50 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-purple-50/30 to-pink-50/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
       {/* Animated border */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20" />
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 transition-opacity duration-300 group-hover:opacity-20" />
 
-      <div className="relative z-10 space-y-4">
-        {/* Book image with enhanced styling */}
-        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 shadow-inner">
+      <div className="relative z-10 space-y-2 sm:space-y-3">
+        {/* Book image with enhanced styling - clickable */}
+        <Link
+          href={`/books/${book.id}`}
+          aria-label={`View ${book.title} details`}
+          className="block relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 shadow-inner cursor-pointer"
+        >
           {book.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -84,38 +81,38 @@ export const BookCard = ({ book }: BookCardProps) => {
 
           {/* Featured badge */}
           {book.is_featured && (
-            <div className="absolute top-3 right-3 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
+            <div className="absolute top-2 right-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-2 py-0.5 text-xs font-bold text-white shadow-md">
               Featured
             </div>
           )}
-        </div>
+        </Link>
 
         {/* Book details */}
-        <div className="space-y-2">
-          <h3 className="text-lg font-bold text-slate-900 leading-tight line-clamp-2">
+        <div className="space-y-1.5">
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-tight line-clamp-2">
             <Link
               href={`/books/${book.id}`}
               aria-label={`View ${book.title} details`}
-              className="hover:text-indigo-600 transition-colors duration-300"
+              className="hover:text-indigo-600 transition-colors duration-200"
             >
               {book.title}
             </Link>
           </h3>
 
-          <p className="text-sm font-medium text-slate-600">{book.author}</p>
+          <p className="text-xs sm:text-sm font-medium text-slate-600 line-clamp-1">{book.author}</p>
 
-          <div className="flex items-center justify-between">
-            <p className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <div className="flex items-center justify-between pt-1">
+            <p className="text-base sm:text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               ₹{book.price.toFixed(2)}
             </p>
 
             {/* Rating placeholder */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <svg
                     key={i}
-                    className={`h-4 w-4 ${i < 4 ? 'text-yellow-400' : 'text-slate-300'}`}
+                    className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${i < 4 ? 'text-yellow-400' : 'text-slate-300'}`}
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -123,39 +120,41 @@ export const BookCard = ({ book }: BookCardProps) => {
                   </svg>
                 ))}
               </div>
-              <span className="text-xs text-slate-500 ml-1">4.2</span>
+              <span className="text-xs text-slate-500">4.2</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* CTA Button */}
-      <div className="relative z-10 mt-6">
+      <div className="relative z-10 mt-3 sm:mt-4">
         <button
           type="button"
           onClick={isInCart ? handleGoToCart : handleAddToCart}
           onKeyDown={handleKeyDown}
           aria-label={isInCart ? "Go to cart" : `Add ${book.title} to cart`}
-          className={`w-full rounded-2xl py-3 text-sm font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 cursor-pointer ${
+          className={`w-full rounded-lg py-2 sm:py-2.5 text-xs sm:text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 cursor-pointer ${
             isInCart
-              ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg hover:shadow-emerald-500/25 hover:scale-105"
-              : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-indigo-500/25 hover:scale-105"
+              ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02]"
+              : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md hover:shadow-indigo-500/20 hover:scale-[1.02]"
           }`}
         >
-          <span className="flex items-center justify-center gap-2">
+          <span className="flex items-center justify-center gap-1.5">
             {isInCart ? (
               <>
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                Go to Cart
+                <span className="hidden sm:inline">Go to Cart</span>
+                <span className="sm:hidden">Cart</span>
               </>
             ) : (
               <>
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Add to Cart
+                <span className="hidden sm:inline">Add to Cart</span>
+                <span className="sm:hidden">Add</span>
               </>
             )}
           </span>
@@ -163,7 +162,7 @@ export const BookCard = ({ book }: BookCardProps) => {
       </div>
 
       {/* Subtle shine effect */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
     </article>
   );
 };

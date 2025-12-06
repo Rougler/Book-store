@@ -276,6 +276,7 @@ class BookOrderCreate(BaseModel):
     zip_code: str
     country: str
     phone: Optional[str] = None
+    payment_method: str = "cod"  # cod or upi
     items: list[BookOrderItemCreate]
 
 
@@ -521,6 +522,17 @@ class HomepageContent(BaseModel):
     core_quote: Quote
     how_it_works: List[HowItWorksStep]
     key_features: List[KeyFeature]
+    # Section Titles and Subtitles
+    growth_model_title: str = "Your Growth Journey"
+    growth_model_subtitle: str = "Follow our proven 4-Step Growth Model to transform your life and achieve lasting success through knowledge and wealth creation"
+    platform_hubs_title: str = "Explore Our Platform Hubs"
+    platform_hubs_subtitle: str = "Three powerful zones designed to accelerate your journey to mastery and financial freedom through interconnected growth"
+    why_choose_us_title: str = "Why Choose Gyaan AUR Dhan?"
+    why_choose_us_subtitle: str = "Join thousands of learners and entrepreneurs building their future"
+    how_it_works_title: str = "Your Journey to Success"
+    how_it_works_subtitle: str = "Discover how our integrated platform combines learning and earning to accelerate your growth journey"
+    key_features_title: str = "Powerful Tools for Success"
+    key_features_subtitle: str = "Explore the comprehensive features designed to accelerate your learning and earning journey"
     success_stories_title: str = "Real People, Real Success"
     success_stories_subtitle: str = "Hear from our community members who transformed their lives through knowledge and entrepreneurship"
 

@@ -234,6 +234,16 @@ content = {
             "description": "AI-powered recommendations suggest the perfect books and courses based on your goals and learning preferences."
         }
     ],
+    "growth_model_title": "Your Growth Journey",
+    "growth_model_subtitle": "Follow our proven 4-Step Growth Model to transform your life and achieve lasting success through knowledge and wealth creation",
+    "platform_hubs_title": "Explore Our Platform Hubs",
+    "platform_hubs_subtitle": "Three powerful zones designed to accelerate your journey to mastery and financial freedom through interconnected growth",
+    "why_choose_us_title": "Why Choose Gyaan AUR Dhan?",
+    "why_choose_us_subtitle": "Join thousands of learners and entrepreneurs building their future",
+    "how_it_works_title": "Your Journey to Success",
+    "how_it_works_subtitle": "Discover how our integrated platform combines learning and earning to accelerate your growth journey",
+    "key_features_title": "Powerful Tools for Success",
+    "key_features_subtitle": "Explore the comprehensive features designed to accelerate your learning and earning journey",
     "success_stories_title": "Real People, Real Success",
     "success_stories_subtitle": "Hear from our community members who transformed their lives through knowledge and entrepreneurship"
 }

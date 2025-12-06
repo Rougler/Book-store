@@ -136,8 +136,11 @@ export const apiRequest = async <T>(
     });
   } catch (fetchError) {
     // Handle network errors (connection refused, CORS, etc.)
-    if (fetchError instanceof TypeError && fetchError.message.includes("fetch")) {
-      throw new Error("Failed to fetch: Unable to connect to the server. Please ensure the backend is running.");
+    if (fetchError instanceof TypeError) {
+      const errorMsg = fetchError.message.toLowerCase();
+      if (errorMsg.includes("fetch") || errorMsg.includes("network") || errorMsg.includes("failed")) {
+        throw new Error("Unable to connect to the server. Please ensure the backend is running at http://localhost:8000");
+      }
     }
     throw fetchError;
   }

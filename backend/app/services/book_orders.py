@@ -30,26 +30,66 @@ def create_book_order(payload: BookOrderCreate) -> BookOrderDetail:
     # Create order
     with db_session() as conn:
         cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO book_orders (
-                email, first_name, last_name, address, city, state, zip_code, country, phone, total_amount, status
+        # Check if payment_method column exists
+        cursor.execute("PRAGMA table_info(book_orders)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if "payment_method" not in columns:
+            try:
+                cursor.execute("ALTER TABLE book_orders ADD COLUMN payment_method TEXT DEFAULT 'cod'")
+            except Exception:
+                pass
+        
+        if "payment_reference" not in columns:
+            try:
+                cursor.execute("ALTER TABLE book_orders ADD COLUMN payment_reference TEXT")
+            except Exception:
+                pass
+        
+        # Insert order with payment method
+        if "payment_method" in [row[1] for row in cursor.execute("PRAGMA table_info(book_orders)").fetchall()]:
+            cursor.execute(
+                """
+                INSERT INTO book_orders (
+                    email, first_name, last_name, address, city, state, zip_code, country, phone, total_amount, status, payment_method
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+                """,
+                (
+                    payload.email,
+                    payload.first_name,
+                    payload.last_name,
+                    payload.address,
+                    payload.city,
+                    payload.state,
+                    payload.zip_code,
+                    payload.country,
+                    payload.phone,
+                    total_amount,
+                    payload.payment_method,
+                ),
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-            """,
-            (
-                payload.email,
-                payload.first_name,
-                payload.last_name,
-                payload.address,
-                payload.city,
-                payload.state,
-                payload.zip_code,
-                payload.country,
-                payload.phone,
-                total_amount,
-            ),
-        )
+        else:
+            cursor.execute(
+                """
+                INSERT INTO book_orders (
+                    email, first_name, last_name, address, city, state, zip_code, country, phone, total_amount, status
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+                """,
+                (
+                    payload.email,
+                    payload.first_name,
+                    payload.last_name,
+                    payload.address,
+                    payload.city,
+                    payload.state,
+                    payload.zip_code,
+                    payload.country,
+                    payload.phone,
+                    total_amount,
+                ),
+            )
         order_id = cursor.lastrowid
 
         # Create order items

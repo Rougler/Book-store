@@ -171,6 +171,8 @@ CREATE_STATEMENTS = (
         phone TEXT,
         total_amount REAL NOT NULL,
         status TEXT DEFAULT 'pending', -- pending, paid, failed, refunded, completed
+        payment_method TEXT DEFAULT 'cod', -- cod, upi
+        payment_reference TEXT, -- Razorpay payment ID or other reference
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         paid_at TIMESTAMP
     )

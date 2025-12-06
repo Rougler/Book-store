@@ -39,7 +39,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 text-slate-900 antialiased`} suppressHydrationWarning>
         <AppProviders>
           <Navbar />
-          <main className="bg-slate-50">
+          <main className="bg-slate-50 w-full overflow-x-hidden pt-20 md:pt-24">
             {children}
           </main>
           <Footer />
