@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import { useAuth, useAdminAuth } from "@/context/auth-context";
 import { useCartStore } from "@/store/cart-store";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import clsx from "clsx";
 
 const navLinks = [
@@ -92,7 +93,10 @@ export const Navbar = () => {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             <Link
               href="/cart"
               className="group relative rounded-full p-3 text-slate-700 transition-all duration-300 hover:bg-white/50 hover:text-indigo-600 hover:scale-110 hover:shadow-lg"
@@ -232,6 +236,11 @@ export const Navbar = () => {
               ))}
             </nav>
             <div className="flex flex-col gap-3 border-t border-slate-200/50 pt-4">
+              {/* Theme Toggle for Mobile */}
+              <div className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-slate-700">
+                <span>Dark Mode</span>
+                <ThemeToggle />
+              </div>
               <Link
                 href="/cart"
                 onClick={closeMobileMenu}

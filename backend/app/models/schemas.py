@@ -143,6 +143,8 @@ class OrderSummary(BaseModel):
     created_at: datetime
     paid_at: Optional[datetime] = None
     sales_units: int = 1
+    user_email: Optional[str] = None
+    user_name: Optional[str] = None
 
 
 class OrderDetail(OrderSummary):
@@ -540,5 +542,152 @@ class HomepageContent(BaseModel):
 class ContentUpdate(BaseModel):
     section_key: str
     content: dict
+
+
+# Community and Forum
+class CommunityPostBase(BaseModel):
+    title: str
+    content: str
+    category: str = "general"  # general, question, announcement, event
+    image_url: Optional[str] = None
+
+
+class CommunityPostCreate(CommunityPostBase):
+    pass
+
+
+class CommunityPostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
+    image_url: Optional[str] = None
+    is_pinned: Optional[bool] = None
+    is_featured: Optional[bool] = None
+    is_active: Optional[bool] = None
+
+
+class CommunityPost(CommunityPostBase):
+    id: int
+    user_id: int
+    user_name: str
+    user_profile_image: Optional[str] = None
+    is_pinned: bool
+    is_featured: bool
+    likes_count: int
+    comments_count: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class CommunityCommentBase(BaseModel):
+    content: str
+
+
+class CommunityCommentCreate(CommunityCommentBase):
+    post_id: int
+
+
+class CommunityCommentUpdate(BaseModel):
+    content: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class CommunityComment(CommunityCommentBase):
+    id: int
+    post_id: int
+    user_id: int
+    user_name: str
+    user_profile_image: Optional[str] = None
+    likes_count: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class MeetingLinkBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    meeting_url: str
+    meeting_id: Optional[str] = None
+    passcode: Optional[str] = None
+    start_date: datetime
+    end_date: Optional[datetime] = None
+
+
+class MeetingLinkCreate(MeetingLinkBase):
+    pass
+
+
+class MeetingLinkUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    meeting_url: Optional[str] = None
+    meeting_id: Optional[str] = None
+    passcode: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    is_active: Optional[bool] = None
+
+
+class MeetingLink(MeetingLinkBase):
+    id: int
+    is_active: bool
+    created_by: int
+    created_by_name: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class CommunityBannerBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    image_url: str
+    link_url: Optional[str] = None
+    display_order: int = 0
+
+
+class CommunityBannerCreate(CommunityBannerBase):
+    pass
+
+
+class CommunityBannerUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    link_url: Optional[str] = None
+    display_order: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+class CommunityBanner(CommunityBannerBase):
+    id: int
+    is_active: bool
+    created_by: int
+    created_by_name: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class PostLike(BaseModel):
+    id: int
+    post_id: int
+    user_id: int
+    created_at: datetime
+
+
+class CommentLike(BaseModel):
+    id: int
+    comment_id: int
+    user_id: int
+    created_at: datetime
+
+
+class CommunityStats(BaseModel):
+    total_posts: int
+    total_comments: int
+    active_users: int
+    recent_posts: List[CommunityPost]
+    upcoming_meetings: List[MeetingLink]
 
 

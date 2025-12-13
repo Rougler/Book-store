@@ -267,3 +267,109 @@ export const uploadFile = async (
   return response.json() as Promise<{ url: string }>;
 };
 
+// Community API
+export const communityApi = {
+  // Posts
+  getPosts: async (params?: { category?: string; limit?: number; offset?: number }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.category) searchParams.append("category", params.category);
+    if (params?.limit) searchParams.append("limit", params.limit.toString());
+    if (params?.offset) searchParams.append("offset", params.offset.toString());
+
+    const queryString = searchParams.toString();
+    const url = `/api/community/posts${queryString ? `?${queryString}` : ""}`;
+
+    return apiRequest(url, { requireAuth: true });
+  },
+
+  createPost: async (data: { title: string; content: string; category?: string; image_url?: string }) => {
+    return apiRequest("/api/community/posts", {
+      method: "POST",
+      body: data,
+      requireAuth: true,
+    });
+  },
+
+  getPost: async (postId: number) => {
+    return apiRequest(`/api/community/posts/${postId}`, { requireAuth: true });
+  },
+
+  updatePost: async (postId: number, data: Partial<{ title: string; content: string; category: string; image_url?: string; is_pinned: boolean; is_featured: boolean }>) => {
+    return apiRequest(`/api/community/posts/${postId}`, {
+      method: "PUT",
+      body: data,
+      requireAuth: true,
+    });
+  },
+
+  deletePost: async (postId: number) => {
+    return apiRequest(`/api/community/posts/${postId}`, {
+      method: "DELETE",
+      requireAuth: true,
+    });
+  },
+
+  // Comments
+  getComments: async (postId: number) => {
+    return apiRequest(`/api/community/posts/${postId}/comments`, { requireAuth: true });
+  },
+
+  createComment: async (data: { post_id: number; content: string }) => {
+    return apiRequest("/api/community/comments", {
+      method: "POST",
+      body: data,
+      requireAuth: true,
+    });
+  },
+
+  // Meetings
+  getMeetings: async (upcomingOnly = true) => {
+    const params = new URLSearchParams();
+    params.append("upcoming_only", upcomingOnly.toString());
+
+    return apiRequest(`/api/community/meetings?${params}`, { requireAuth: true });
+  },
+
+  createMeeting: async (data: {
+    title: string;
+    description?: string;
+    meeting_url: string;
+    meeting_id?: string;
+    passcode?: string;
+    start_date: string;
+    end_date?: string;
+  }) => {
+    return apiRequest("/api/community/meetings", {
+      method: "POST",
+      body: data,
+      requireAuth: true,
+      role: "admin",
+    });
+  },
+
+  // Banners
+  getBanners: async () => {
+    return apiRequest("/api/community/banners", { requireAuth: true });
+  },
+
+  createBanner: async (data: {
+    title: string;
+    description?: string;
+    image_url: string;
+    link_url?: string;
+    display_order?: number;
+  }) => {
+    return apiRequest("/api/community/banners", {
+      method: "POST",
+      body: data,
+      requireAuth: true,
+      role: "admin",
+    });
+  },
+
+  // Stats
+  getStats: async () => {
+    return apiRequest("/api/community/stats", { requireAuth: true });
+  },
+};
+

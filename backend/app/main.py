@@ -8,6 +8,7 @@ from .database import initialize_database
 from .routers.admin import router as admin_router
 from .routers.auth import router as auth_router
 from .routers.books import router as books_router
+from .routers.community import router as community_router
 from .routers.compensation import router as compensation_router
 from .routers.orders import router as orders_router
 from .routers.packages import router as packages_router
@@ -39,6 +40,7 @@ def create_app() -> FastAPI:
     app.include_router(packages_router, prefix="/api/packages", tags=["packages"])
     app.include_router(orders_router, prefix="/api/orders", tags=["orders"])
     app.include_router(compensation_router, prefix="/api/compensation", tags=["compensation"])
+    app.include_router(community_router, prefix="/api/community", tags=["community"])
     app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
     app.include_router(uploads_router, prefix="/api/uploads", tags=["uploads"])
     app.include_router(content_router, prefix="/api/content", tags=["content"])

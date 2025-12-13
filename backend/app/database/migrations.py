@@ -350,6 +350,112 @@ def migrate_add_book_orders_payment_fields() -> None:
         conn.commit()
 
 
+def migrate_add_community_features() -> None:
+    """Create tables for community forum features."""
+    with db_session() as conn:
+        cursor = conn.cursor()
+
+        # Create community_posts table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS community_posts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                category TEXT DEFAULT 'general', -- general, question, announcement, event
+                image_url TEXT,
+                is_pinned BOOLEAN DEFAULT FALSE,
+                is_featured BOOLEAN DEFAULT FALSE,
+                likes_count INTEGER DEFAULT 0,
+                comments_count INTEGER DEFAULT 0,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+        # Create community_comments table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS community_comments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                content TEXT NOT NULL,
+                likes_count INTEGER DEFAULT 0,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+        # Create meeting_links table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS meeting_links (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                description TEXT,
+                meeting_url TEXT NOT NULL,
+                meeting_id TEXT,
+                passcode TEXT,
+                start_date TIMESTAMP NOT NULL,
+                end_date TIMESTAMP,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_by INTEGER NOT NULL, -- admin user id
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        """)
+
+        # Create community_banners table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS community_banners (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                description TEXT,
+                image_url TEXT NOT NULL,
+                link_url TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                display_order INTEGER DEFAULT 0,
+                created_by INTEGER NOT NULL, -- admin user id
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        """)
+
+        # Create post_likes table for tracking likes
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS post_likes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(post_id, user_id)
+            )
+        """)
+
+        # Create comment_likes table for tracking comment likes
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS comment_likes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                comment_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (comment_id) REFERENCES community_comments(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(comment_id, user_id)
+            )
+        """)
+
+        conn.commit()
+
+
 def run_all_migrations() -> None:
     """Run all pending migrations."""
     migrate_add_missing_user_columns()  # Run first to add basic columns
@@ -359,4 +465,5 @@ def run_all_migrations() -> None:
     migrate_orders_table_schema()  # Migrate orders table schema
     migrate_add_books_content_url()  # Add content_url to books table
     migrate_add_book_orders_payment_fields()  # Add payment fields to book_orders
+    migrate_add_community_features()  # Add community forum tables
 

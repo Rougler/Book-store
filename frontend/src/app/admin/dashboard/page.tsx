@@ -201,11 +201,10 @@ export default function AdminDashboard() {
                       <p className="text-sm text-slate-500">{new Date(order.created_at).toLocaleDateString()}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-green-600">₹{order.total_amount.toFixed(2)}</p>
+                      <p className="font-bold text-green-600">₹{order.amount.toFixed(2)}</p>
                       <span
-                        className={`inline-block rounded-full px-2 py-1 text-xs ${
-                          order.status === "pending" ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"
-                        }`}
+                        className={`inline-block rounded-full px-2 py-1 text-xs ${order.status === "pending" ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"
+                          }`}
                       >
                         {order.status}
                       </span>

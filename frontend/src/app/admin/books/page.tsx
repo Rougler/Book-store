@@ -79,12 +79,15 @@ export default function AdminBooksPage() {
     bookTitle: "",
   });
 
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({
+    setValue, // Added setValue
+  } = useForm<BookFormValues>({
     resolver: zodResolver(bookSchema),
     defaultValues: {
       title: "",
@@ -133,6 +136,28 @@ export default function AdminBooksPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEditClick = (book: Book) => {
+    setEditingBook(book);
+    setShowAddForm(true);
+    setUseImageUpload(false);
+    setUseContentUpload(false);
+    setImageFile(null);
+    setContentFile(null);
+
+    // Populate form
+    setValue("title", book.title);
+    setValue("author", book.author);
+    setValue("price", book.price);
+    setValue("category", book.category);
+    setValue("description", book.description || "");
+    setValue("image_url", book.image_url || "");
+    setValue("content_url", book.content_url || "");
+    setValue("is_featured", book.is_featured);
+
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const onSubmit = async (values: BookFormValues) => {
@@ -189,26 +214,41 @@ export default function AdminBooksPage() {
         }
       }
 
-      await apiRequest<Book>("/api/admin/books", {
-        method: "POST",
-        body: {
-          title: values.title,
-          author: values.author,
-          price: values.price,
-          description: values.description || null,
-          category: values.category,
-          image_url: imageUrl,
-          content_url: contentUrl,
-          is_featured: values.is_featured,
-        },
-        requireAuth: true,
-        role: "admin",
-      });
+      const bookData = {
+        title: values.title,
+        author: values.author,
+        price: values.price,
+        description: values.description || null,
+        category: values.category,
+        image_url: imageUrl,
+        content_url: contentUrl,
+        is_featured: values.is_featured,
+      };
+
+      if (editingBook) {
+        // Update existing book
+        await apiRequest<Book>(`/api/admin/books/${editingBook.id}`, {
+          method: "PUT",
+          body: bookData,
+          requireAuth: true,
+          role: "admin",
+        });
+      } else {
+        // Create new book
+        await apiRequest<Book>("/api/admin/books", {
+          method: "POST",
+          body: bookData,
+          requireAuth: true,
+          role: "admin",
+        });
+      }
+
       reset();
       setImageFile(null);
       setContentFile(null);
       setUseImageUpload(false);
       setUseContentUpload(false);
+      setEditingBook(null); // Reset edit mode
       if (imageInputRef.current) imageInputRef.current.value = "";
       if (contentInputRef.current) contentInputRef.current.value = "";
       setShowAddForm(false);
@@ -217,10 +257,10 @@ export default function AdminBooksPage() {
         isOpen: true,
         type: "success",
         title: "Success",
-        message: "Book added successfully!",
+        message: editingBook ? "Book updated successfully!" : "Book added successfully!",
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to add book.";
+      const message = error instanceof Error ? error.message : editingBook ? "Failed to update book." : "Failed to add book.";
       setStatusModal({
         isOpen: true,
         type: "error",
@@ -327,7 +367,38 @@ export default function AdminBooksPage() {
         </div>
         <div className="flex items-center gap-4">
           <button
-            onClick={() => setShowAddForm(!showAddForm)}
+            onClick={() => {
+              if (showAddForm) {
+                // Cancel/Close
+                setShowAddForm(false);
+                setEditingBook(null);
+                reset();
+                setImageFile(null);
+                setContentFile(null);
+                setUseImageUpload(false);
+                setUseContentUpload(false);
+                if (imageInputRef.current) imageInputRef.current.value = "";
+                if (contentInputRef.current) contentInputRef.current.value = "";
+              } else {
+                // Open Add Form
+                setShowAddForm(true);
+                setEditingBook(null);
+                reset({
+                  title: "",
+                  author: "",
+                  price: 0,
+                  category: "",
+                  description: "",
+                  image_url: "",
+                  content_url: "",
+                  is_featured: false,
+                });
+                setImageFile(null);
+                setContentFile(null);
+                setUseImageUpload(false);
+                setUseContentUpload(false);
+              }
+            }}
             className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
             aria-label="Add new book"
           >
@@ -348,7 +419,7 @@ export default function AdminBooksPage() {
 
       {showAddForm && (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-slate-900">Add New Book</h3>
+          <h3 className="mb-4 text-lg font-semibold text-slate-900">{editingBook ? "Edit Book" : "Add New Book"}</h3>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div className="grid gap-4 md:grid-cols-2">
               <InputField id="title" label="Title *" register={register} error={errors.title} />
@@ -393,9 +464,8 @@ export default function AdminBooksPage() {
                     setImageFile(null);
                     if (imageInputRef.current) imageInputRef.current.value = "";
                   }}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    !useImageUpload ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                  }`}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${!useImageUpload ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                    }`}
                 >
                   URL
                 </button>
@@ -404,9 +474,8 @@ export default function AdminBooksPage() {
                   onClick={() => {
                     setUseImageUpload(true);
                   }}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    useImageUpload ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                  }`}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${useImageUpload ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                    }`}
                 >
                   Upload
                 </button>
@@ -487,9 +556,8 @@ export default function AdminBooksPage() {
                     setContentFile(null);
                     if (contentInputRef.current) contentInputRef.current.value = "";
                   }}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    !useContentUpload ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                  }`}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${!useContentUpload ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                    }`}
                 >
                   URL
                 </button>
@@ -498,9 +566,8 @@ export default function AdminBooksPage() {
                   onClick={() => {
                     setUseContentUpload(true);
                   }}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    useContentUpload ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                  }`}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${useContentUpload ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                    }`}
                 >
                   Upload
                 </button>
@@ -580,13 +647,14 @@ export default function AdminBooksPage() {
                 className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="Add book"
               >
-                {isSubmitting ? "Adding..." : "Add Book"}
+                {isSubmitting ? (editingBook ? "Updating..." : "Adding...") : editingBook ? "Update Book" : "Add Book"}
               </button>
               <button
                 type="button"
                 onClick={() => {
                   setShowAddForm(false);
                   reset();
+                  setEditingBook(null); // Clear edit state
                   setImageFile(null);
                   setContentFile(null);
                   setUseImageUpload(false);
@@ -633,6 +701,13 @@ export default function AdminBooksPage() {
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleEditClick(book)}
+                        className="mr-3 text-blue-600 transition-colors hover:text-blue-900"
+                        aria-label={`Edit ${book.title}`}
+                      >
+                        Edit
+                      </button>
                       <button
                         onClick={() => handleDeleteClick(book.id, book.title)}
                         className="text-red-600 transition-colors hover:text-red-900"

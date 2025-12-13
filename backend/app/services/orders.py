@@ -34,6 +34,8 @@ def _row_to_order_summary(row) -> OrderSummary:
         created_at=row["created_at"],
         paid_at=row["paid_at"],
         sales_units=sales_units,
+        user_email=row["user_email"] if "user_email" in row.keys() else None,
+        user_name=row["user_name"] if "user_name" in row.keys() else None,
     )
 
 
@@ -137,9 +139,10 @@ def list_user_orders(user_id: int) -> list[OrderSummary]:
     with db_session() as conn:
         rows = conn.execute(
             """
-            SELECT o.*, p.name as package_name
+            SELECT o.*, p.name as package_name, u.email as user_email, u.full_name as user_name
             FROM orders o
             JOIN packages p ON o.package_id = p.id
+            JOIN users u ON o.user_id = u.id
             WHERE o.user_id = ?
             ORDER BY o.created_at DESC
             """,
@@ -154,9 +157,10 @@ def list_all_orders() -> list[OrderSummary]:
     with db_session() as conn:
         rows = conn.execute(
             """
-            SELECT o.*, p.name as package_name
+            SELECT o.*, p.name as package_name, u.email as user_email, u.full_name as user_name
             FROM orders o
             JOIN packages p ON o.package_id = p.id
+            JOIN users u ON o.user_id = u.id
             ORDER BY o.created_at DESC
             """,
         ).fetchall()

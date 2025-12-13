@@ -128,6 +128,8 @@ export type OrderSummary = {
   created_at: string;
   paid_at?: string | null;
   sales_units?: number;
+  user_email?: string;
+  user_name?: string;
 };
 
 export type OrderDetail = OrderSummary & {
@@ -345,6 +347,76 @@ export type DashboardStats = {
   top_performers: Record<string, any>[];
 };
 
+
+// Community
+export type CommunityPost = {
+  id: number;
+  user_id: number;
+  title: string;
+  content: string;
+  category: string;
+  image_url?: string | null;
+  is_pinned: boolean;
+  is_featured: boolean;
+  likes_count: number;
+  comments_count: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  user_name: string;
+  user_profile_image?: string | null;
+};
+
+export type CommunityComment = {
+  id: number;
+  post_id: number;
+  user_id: number;
+  content: string;
+  likes_count: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  user_name: string;
+  user_profile_image?: string | null;
+};
+
+export type MeetingLink = {
+  id: number;
+  title: string;
+  description?: string | null;
+  meeting_url: string;
+  meeting_id?: string | null;
+  passcode?: string | null;
+  start_date: string;
+  end_date?: string | null;
+  is_active: boolean;
+  created_by: number;
+  created_by_name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CommunityBanner = {
+  id: number;
+  title: string;
+  description?: string | null;
+  image_url: string;
+  link_url?: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_by: number;
+  created_by_name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CommunityStats = {
+  total_posts: number;
+  total_comments: number;
+  active_users: number;
+  recent_posts: CommunityPost[];
+  upcoming_meetings: MeetingLink[];
+};
 
 // Site Content
 export type HeroSlide = {
